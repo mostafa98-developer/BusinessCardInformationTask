@@ -1,8 +1,10 @@
+using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.IRepository;
 using BusinessCardInformation.Core.IServices;
 using BusinessCardInformation.Infrastructure.Data;
 using BusinessCardInformation.Infrastructure.Repositories;
 using BusinessCardInformation.Infrastructure.Services;
+using BusinessCardInformation.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<BusinessCardDbContext>(options =>
 // Register generic repository and services
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
+builder.Services.AddScoped<IBusinessCardService, BusinessCardService>();
 
 // Register BusinessCardService specifically
 builder.Services.AddScoped<BusinessCardService>();
@@ -35,6 +38,8 @@ app.UseHttpsRedirection();
 //    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 //    options.RoutePrefix = string.Empty; // Makes Swagger UI the default page
 //});
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseRouting();
 

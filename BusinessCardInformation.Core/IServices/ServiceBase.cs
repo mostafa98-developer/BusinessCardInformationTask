@@ -9,10 +9,10 @@ namespace BusinessCardInformation.Core.IServices
 {
     public interface IService<T> where T : BaseEntity
     {
-        Task<T> GetByIdAsync(int id);
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<T> AddAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(int id);
+        Task<ServiceResult<T>> GetByIdAsync(int id);
+        Task<ServiceResult<IEnumerable<T>>> GetAllAsync();
+        Task<ServiceResult<T>> AddAsync(T entity);
+        Task<ServiceResult<T>> UpdateAsync(T entity);
+        Task<ServiceResult<T>> DeleteAsync(int id);
     }
 }

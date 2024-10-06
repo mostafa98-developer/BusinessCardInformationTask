@@ -1,4 +1,5 @@
 using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.IServices;
 using BusinessCardInformation.Infrastructure.Services;
 using BusinessCardInformation.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,17 @@ namespace BusinessCardInformation.Controllers
     public class BusinessCardController : Controller
     {
         private readonly ILogger<BusinessCardController> _logger;
-        private readonly BusinessCardService _businessCardService;
+        private readonly IBusinessCardService _businessCardService;
 
 
-        public BusinessCardController(ILogger<BusinessCardController> logger)
+        public BusinessCardController(ILogger<BusinessCardController> logger, IBusinessCardService businessCardService)
         {
             _logger = logger;
+            _businessCardService = businessCardService;
         }
 
         [HttpPost]
-        public IActionResult CreateNewBusinessCard([FromBody] BusinessCard card)
+        public async Task<IActionResult> CreateNewBusinessCard([FromBody] BusinessCard card)
         {
             if (card == null)
                 return BadRequest("Invalid input.");
@@ -30,18 +32,60 @@ namespace BusinessCardInformation.Controllers
             if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
                 return BadRequest("Photo size exceeds 1MB.");
 
-            // Save the business card to the database here
-            return Ok($"Business card created for {card.Name}");
+
+            var result = await _businessCardService.AddAsync(card);
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Data);
+
         }
 
         // GET: api/BusinessCard
         [HttpGet]
         public async Task<IActionResult> GetAllBusinessCards()
         {
-            var cards = await _businessCardService.GetAllAsync();
-            return Ok(cards);
+            var result = await _businessCardService.GetAllAsync();
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Data);
         }
 
+
+        // Put: api/BusinessCard
+        [HttpPut]
+        public async Task<IActionResult> UpdateBusinessCards([FromBody] BusinessCard card)
+        {
+            if (card == null)
+                return BadRequest("Invalid input.");
+
+            // Check if the photo exceeds the size limit (1MB)
+            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+                return BadRequest("Photo size exceeds 1MB.");
+
+
+            var result = await _businessCardService.UpdateAsync(card);
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Data);
+        }
+
+        // Put: api/BusinessCard
+        [HttpDelete]
+        public async Task<IActionResult> DeleteBusinessCards(int cardId)
+        {
+            if (cardId == null)
+                return BadRequest("Invalid input.");
+
+           
+            var result = await _businessCardService.DeleteAsync(cardId);
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Data);
+        }
 
         [HttpPost("import")]
         public IActionResult ImportBusinessCards(IFormFile file)
@@ -137,11 +181,13 @@ namespace BusinessCardInformation.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        // GET: api/test/helloworld
-        [HttpGet("helloworld")]
-        public IActionResult GetHelloWorld()
+        [HttpGet]
+        [Route("/")]
+        public IActionResult Get()
         {
             return Ok("Hello, World!");
         }
+
+        
     }
 }

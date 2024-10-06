@@ -18,29 +18,54 @@ namespace BusinessCardInformation.Infrastructure.Services
             _repository = repository;
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<ServiceResult<T>> GetByIdAsync(int id)
         {
-            return await _repository.GetByIdAsync(id);
+               var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
+                return new ServiceResult<T>("Entity not found.");
+
+            return new ServiceResult<T>(entity);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<ServiceResult<IEnumerable<T>>> GetAllAsync()
         {
-            return await _repository.GetAllAsync();
+            var entity = await _repository.GetAllAsync();
+            if (entity == null)
+                return new ServiceResult<IEnumerable<T>>("Entity not found.");
+
+            return new ServiceResult<IEnumerable<T>>(entity);
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<ServiceResult<T>> AddAsync(T entity)
         {
-            return await _repository.AddAsync(entity);
+            if (entity == null)
+                return new ServiceResult<T>("Invalid input.");
+
+            await _repository.AddAsync(entity);
+            return new ServiceResult<T>(entity);
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<ServiceResult<T>> UpdateAsync(T entity)
         {
+            if (entity == null)
+                return new ServiceResult<T>("Invalid input.");
+
+            var existingCard = await _repository.GetByIdAsync(entity.Id);
+            if (existingCard == null)
+                return new ServiceResult<T>("Entity not found.");
+
             await _repository.UpdateAsync(entity);
+            return new ServiceResult<T>(entity);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<ServiceResult<T>> DeleteAsync(int id)
         {
+            var existingCard = await _repository.GetByIdAsync(id);
+            if (existingCard == null)
+                return new ServiceResult<T>("Entity not found.");
+
             await _repository.DeleteAsync(id);
+            return new ServiceResult<T>(existingCard);
         }
     }
 }

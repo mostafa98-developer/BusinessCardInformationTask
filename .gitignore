@@ -12,4 +12,21 @@
 bin/
 obj/
 
-#
+# Ignore package and cache files
+*.nuget.g.props
+*.nuget.g.targets
+project.assets.json
+project.nuget.cache
+
+# Ignore debug and release folders
+**/Debug/
+**/Release/
+
+# Ignore assembly-related cache files
+*.AssemblyInfo.*
+*.AssemblyReference.cache
+
+# Ignore editor config files
+*.editorconfig
+*.GeneratedMSBuildEditorConfig.editorconfig
+

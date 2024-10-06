@@ -11,26 +11,31 @@ namespace BusinessCardInformation.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "BusinessCards",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhotoBase64 = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BusinessCards", x => x.Id);
-                });
+                migrationBuilder.CreateTable(
+                    name: "BusinessCards",
+                    columns: table => new
+                    {
+                        Id = table.Column<int>(type: "int", nullable: false)
+                            .Annotation("SqlServer:Identity", "1, 1"),
+                        Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                        Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                        DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                        Email = table.Column<string>(type: "nvarchar(256)", nullable: false), // Specify length for index optimization
+                        Phone = table.Column<string>(type: "nvarchar(15)", nullable: false),  // Specify length for phone numbers
+                        Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                        PhotoBase64 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                        CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                        UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    },
+                    constraints: table =>
+                    {
+                        table.PrimaryKey("PK_BusinessCards", x => x.Id);
+                        // Enforce unique constraints on Email and Phone
+                        table.UniqueConstraint("AK_BusinessCards_Email", x => x.Email);
+                        table.UniqueConstraint("AK_BusinessCards_Phone", x => x.Phone);
+                    }
+                 );
+
         }
 
         /// <inheritdoc />

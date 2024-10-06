@@ -1,4 +1,5 @@
 ﻿using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace BusinessCardInformation.Core.IRepository
 {
-    internal interface IBusinessCardRepository
+    public interface IBusinessCardRepository
     {
-        Task<BusinessCard> AddAsync(BusinessCard card);
-        Task<IEnumerable<BusinessCard>> GetAllAsync();
+        Task<IEnumerable<BusinessCard>> GetAllAsync(BusinessCardFilter baseFilter);
     }
 }

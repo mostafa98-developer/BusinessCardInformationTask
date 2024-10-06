@@ -1,9 +1,11 @@
 using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
 using BusinessCardInformation.Infrastructure.Services;
 using BusinessCardInformation.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace BusinessCardInformation.Controllers
@@ -42,9 +44,9 @@ namespace BusinessCardInformation.Controllers
 
         // GET: api/BusinessCard
         [HttpGet]
-        public async Task<IActionResult> GetAllBusinessCards()
+        public async Task<IActionResult> GetAllBusinessCards([FromQuery] BusinessCardFilter filter = null)
         {
-            var result = await _businessCardService.GetAllAsync();
+            var result = await _businessCardService.GetAllAsync(filter);
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
@@ -113,6 +115,45 @@ namespace BusinessCardInformation.Controllers
 
             // Save to database logic
             return Ok($"{businessCards.Count} business cards imported successfully.");
+        }
+
+        [HttpGet("export/xml")]
+        public async Task<IActionResult> ExportToXml()
+        {
+            var result = await _businessCardService.GetAllAsync(null); // Get all business cards
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            var xmlSerializer = new XmlSerializer(typeof(List<BusinessCard>));
+            using var stringWriter = new StringWriter();
+            xmlSerializer.Serialize(stringWriter, result.Data);
+
+            var xmlResult = Encoding.UTF8.GetBytes(stringWriter.ToString());
+            return File(xmlResult, "application/xml", "business_cards.xml");
+        }
+
+        // Export to CSV
+        [HttpGet("export/csv")]
+        public async Task<IActionResult> ExportToCsv()
+        {
+            var result = await _businessCardService.GetAllAsync(null); // Get all business cards
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            var csvBuilder = new StringBuilder();
+            csvBuilder.AppendLine("Id,Name,Gender,DateOfBirth,Email,Phone,Address");
+
+            foreach (var card in result.Data)
+            {
+                csvBuilder.AppendLine($"{card.Id},{card.Name},{card.Gender},{card.DateOfBirth},{card.Email},{card.Phone},{card.Address},{card.PhotoBase64}");
+            }
+
+            var csvResult = Encoding.UTF8.GetBytes(csvBuilder.ToString());
+            return File(csvResult, "text/csv", "business_cards.csv");
         }
 
         private List<BusinessCard> ReadCsv(StreamReader stream)

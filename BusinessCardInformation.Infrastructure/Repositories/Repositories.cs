@@ -1,4 +1,5 @@
 ﻿using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IRepository;
 using BusinessCardInformation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,8 @@ namespace BusinessCardInformation.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-        private readonly BusinessCardDbContext _dbContext;
-        private readonly DbSet<T> _dbSet;
+        protected readonly BusinessCardDbContext _dbContext;
+        protected readonly DbSet<T> _dbSet;
 
         public Repository(BusinessCardDbContext dbContext)
         {
@@ -26,9 +27,24 @@ namespace BusinessCardInformation.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(BaseFilter filter)
         {
-            return await _dbSet.ToListAsync();
+            var query = _dbContext.BusinessCards.AsQueryable();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrEmpty(filter.Name))
+                {
+                    query = query.Where(u => u.Name.Contains(filter.Name));
+                }
+
+                if (!string.IsNullOrEmpty(filter.Email))
+                {
+                    query = query.Where(u => u.Email.Contains(filter.Email));
+                }
+            }
+            return (IEnumerable<T>)await query.ToListAsync();
+
         }
 
         public async Task<T> AddAsync(T entity)

@@ -1,4 +1,5 @@
 ﻿using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IRepository;
 using BusinessCardInformation.Core.IServices;
 using System;
@@ -12,6 +13,7 @@ namespace BusinessCardInformation.Infrastructure.Services
     public class Service<T> : IService<T> where T : BaseEntity
     {
         private readonly IRepository<T> _repository;
+
 
         public Service(IRepository<T> repository)
         {
@@ -27,13 +29,13 @@ namespace BusinessCardInformation.Infrastructure.Services
             return new ServiceResult<T>(entity);
         }
 
-        public async Task<ServiceResult<IEnumerable<T>>> GetAllAsync()
+        public async Task<ServiceResult<IEnumerable<T>>> GetAllAsync(BaseFilter filter)
         {
-            var entity = await _repository.GetAllAsync();
-            if (entity == null)
+            var entities = await _repository.GetAllAsync(filter);
+            if (entities == null)
                 return new ServiceResult<IEnumerable<T>>("Entity not found.");
 
-            return new ServiceResult<IEnumerable<T>>(entity);
+            return new ServiceResult<IEnumerable<T>>(entities);
         }
 
         public async Task<ServiceResult<T>> AddAsync(T entity)

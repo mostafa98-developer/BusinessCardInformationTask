@@ -1,6 +1,8 @@
 ﻿using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IRepository;
 using BusinessCardInformation.Core.IServices;
+using BusinessCardInformation.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,21 @@ namespace BusinessCardInformation.Infrastructure.Services
 {
     public class BusinessCardService :  Service<BusinessCard>, IBusinessCardService
     {
-        
-        public BusinessCardService(IRepository<BusinessCard> repository) : base(repository)
+        private readonly IBusinessCardRepository _businessCardRepository;
+        public BusinessCardService(IRepository<BusinessCard> repository, IBusinessCardRepository businessCardRepository) : base(repository)
         {
-           
+            _businessCardRepository = businessCardRepository;
         }
 
-        
+
+        public async Task<ServiceResult<IEnumerable<BusinessCard>>> GetAllAsync(BusinessCardFilter businessCardFilter)
+        {
+            var entities = await _businessCardRepository.GetAllAsync(businessCardFilter);
+            if (entities == null)
+                return new ServiceResult<IEnumerable<BusinessCard>>("BusinessCard not found.");
+
+            return new ServiceResult<IEnumerable<BusinessCard>>(entities);
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 using BusinessCardInformation.Controllers;
 using BusinessCardInformation.Core.Entities;
+using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -94,7 +95,7 @@ namespace BusinessCardInformation.Test
                             PhotoBase64 = GenerateBase64Image(1) // 1MB photo
                         } };
                 var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
-                _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(serviceResult);
+                _mockService.Setup(s => s.GetAllAsync(new BusinessCardFilter())).ReturnsAsync(serviceResult);
 
                 // Act
                 var result = await _controller.GetAllBusinessCards();

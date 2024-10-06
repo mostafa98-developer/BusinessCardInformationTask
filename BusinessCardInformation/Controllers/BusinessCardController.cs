@@ -12,15 +12,14 @@ namespace BusinessCardInformation.Controllers
     [Route("api/[controller]")]
     public class BusinessCardController : Controller
     {
-        private readonly ILogger<BusinessCardController> _logger;
         private readonly IBusinessCardService _businessCardService;
 
-
-        public BusinessCardController(ILogger<BusinessCardController> logger, IBusinessCardService businessCardService)
+        public BusinessCardController(IBusinessCardService businessCardService)
         {
-            _logger = logger;
             _businessCardService = businessCardService;
         }
+
+        
 
         [HttpPost]
         public async Task<IActionResult> CreateNewBusinessCard([FromBody] BusinessCard card)
@@ -29,7 +28,7 @@ namespace BusinessCardInformation.Controllers
                 return BadRequest("Invalid input.");
 
             // Check if the photo exceeds the size limit (1MB)
-            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > (long)(1 * 1024 * 1024))
                 return BadRequest("Photo size exceeds 1MB.");
 
 
@@ -76,7 +75,7 @@ namespace BusinessCardInformation.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteBusinessCards(int cardId)
         {
-            if (cardId == null)
+            if (cardId == 0)
                 return BadRequest("Invalid input.");
 
            
@@ -157,7 +156,7 @@ namespace BusinessCardInformation.Controllers
             // Validate photo size for each card
             foreach (var card in cards)
             {
-                if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+                if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > (1 * 1024 * 1024))
                     throw new InvalidOperationException($"Photo size for {card.Name} exceeds 1MB.");
             }
 
@@ -170,9 +169,15 @@ namespace BusinessCardInformation.Controllers
         {
             // The base64 string may contain a prefix like "data:image/jpeg;base64,"
             int prefixLength = base64String.IndexOf(',') + 1;
-            var base64 = base64String.Substring(prefixLength);
+            string base64 = base64String.Substring(prefixLength);
 
-            return (long)((4 * Math.Ceiling((double)base64.Length / 3)) / 8); // Calculate in bytes
+            // Calculate the padding (Base64 strings use '=' for padding)
+            int padding = 0;
+            if (base64.EndsWith("==")) padding = 2;
+            else if (base64.EndsWith("=")) padding = 1;
+
+            // Base64-encoded string size (in bytes)
+            return (base64.Length * 3 / 4) - padding;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -36,6 +36,13 @@ app.UseHttpsRedirection();
 //    options.RoutePrefix = string.Empty; // Makes Swagger UI the default page
 //});
 
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
 app.UseAuthorization();
 
 app.MapControllers();

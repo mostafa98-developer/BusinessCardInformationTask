@@ -19,6 +19,8 @@ builder.Services.AddDbContext<BusinessCardDbContext>(options =>
 
 // Register generic repository and services
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped(typeof(IBusinessCardRepository), typeof(BusinessCardRepository));
+
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
 builder.Services.AddScoped<IBusinessCardService, BusinessCardService>();
 

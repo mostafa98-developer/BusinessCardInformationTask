@@ -136,5 +136,12 @@ namespace BusinessCardInformation.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        // GET: api/test/helloworld
+        [HttpGet("helloworld")]
+        public IActionResult GetHelloWorld()
+        {
+            return Ok("Hello, World!");
+        }
     }
 }

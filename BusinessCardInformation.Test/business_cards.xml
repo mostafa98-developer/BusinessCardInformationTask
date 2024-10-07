@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ArrayOfBusinessCard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BusinessCard>
+    <Id>1</Id>
+    <CreatedDate>2024-10-07T19:29:59.6503572Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Lurline Rolfson</Name>
+    <Gender>Female</Gender>
+    <DateOfBirth>1981-06-05T01:57:03.6975961+03:00</DateOfBirth>
+    <Email>lurlinerolfson.Cremin23@hotmail.com</Email>
+    <Phone>1-302-423-1936</Phone>
+    <Address>66683 Judge Springs, Medhurstmouth, Trinidad and Tobago</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>2</Id>
+    <CreatedDate>2024-10-07T19:29:59.6516291Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Fanny Lemke</Name>
+    <Gender>Female</Gender>
+    <DateOfBirth>1980-08-15T17:03:47.6664195+03:00</DateOfBirth>
+    <Email>fannylemke.Fahey87@hotmail.com</Email>
+    <Phone>207-351-4838 x458</Phone>
+    <Address>095 Sydney Prairie, Turnerbury, Belgium</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>3</Id>
+    <CreatedDate>2024-10-07T19:29:59.6516836Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Betsy Green</Name>
+    <Gender>Male</Gender>
+    <DateOfBirth>2004-05-17T06:17:51.4169632+03:00</DateOfBirth>
+    <Email>betsygreen.Hackett@gmail.com</Email>
+    <Phone>1-922-789-7039 x9265</Phone>
+    <Address>3086 Lavonne Trafficway, North Bayleehaven, South Georgia and the South Sandwich Islands</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>4</Id>
+    <CreatedDate>2024-10-07T19:29:59.6517198Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Eudora Connelly</Name>
+    <Gender>Female</Gender>
+    <DateOfBirth>1994-05-02T16:37:05.1331287+03:00</DateOfBirth>
+    <Email>eudoraconnelly85@hotmail.com</Email>
+    <Phone>927.516.6340</Phone>
+    <Address>1269 Arnold Spring, Beattyhaven, Bulgaria</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>5</Id>
+    <CreatedDate>2024-10-07T19:29:59.6517743Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Davonte Fadel</Name>
+    <Gender>Male</Gender>
+    <DateOfBirth>1991-11-03T16:23:37.2846357+02:00</DateOfBirth>
+    <Email>davontefadel.Kshlerin@yahoo.com</Email>
+    <Phone>578-572-9317 x628</Phone>
+    <Address>01990 Reynolds Isle, Eldaville, Venezuela</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>6</Id>
+    <CreatedDate>2024-10-07T19:29:59.6518088Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Darion Hermann</Name>
+    <Gender>Female</Gender>
+    <DateOfBirth>1999-12-23T08:30:07.64076+02:00</DateOfBirth>
+    <Email>darionhermann97@hotmail.com</Email>
+    <Phone>1-334-460-9308</Phone>
+    <Address>7323 Jones Run, Elizashire, Cuba</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>7</Id>
+    <CreatedDate>2024-10-07T19:29:59.6518409Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Maudie Schmeler</Name>
+    <Gender>Male</Gender>
+    <DateOfBirth>1982-02-26T13:51:54.60639+02:00</DateOfBirth>
+    <Email>maudieschmeler20@hotmail.com</Email>
+    <Phone>(607) 768-2550</Phone>
+    <Address>3872 Trever Point, Nyamouth, Guinea-Bissau</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>8</Id>
+    <CreatedDate>2024-10-07T19:29:59.6518723Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Elmer Ernser</Name>
+    <Gender>Female</Gender>
+    <DateOfBirth>1992-04-06T07:12:20.6869626+03:00</DateOfBirth>
+    <Email>elmerernser_Smith5@gmail.com</Email>
+    <Phone>268-746-8561</Phone>
+    <Address>905 Bergstrom Harbor, Fritschmouth, India</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>9</Id>
+    <CreatedDate>2024-10-07T19:29:59.6519036Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Jakob Thompson</Name>
+    <Gender>Male</Gender>
+    <DateOfBirth>1990-01-10T01:02:49.8885902+02:00</DateOfBirth>
+    <Email>jakobthompson30@yahoo.com</Email>
+    <Phone>(296) 206-5130</Phone>
+    <Address>53823 Donnelly Ports, Loweview, Iceland</Address>
+  </BusinessCard>
+  <BusinessCard>
+    <Id>10</Id>
+    <CreatedDate>2024-10-07T19:29:59.6519338Z</CreatedDate>
+    <UpdatedDate xsi:nil="true" />
+    <Name>Skye Mann</Name>
+    <Gender>Male</Gender>
+    <DateOfBirth>2001-07-12T11:55:18.5438415+03:00</DateOfBirth>
+    <Email>skyemann73@yahoo.com</Email>
+    <Phone>716.331.0824</Phone>
+    <Address>701 Malika Street, New Fiona, Cambodia</Address>
+  </BusinessCard>
+</ArrayOfBusinessCard>

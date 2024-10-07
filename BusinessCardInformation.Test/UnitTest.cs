@@ -83,6 +83,8 @@ namespace BusinessCardInformation.Test
             [Fact]
             public async Task GetAllBusinessCards_ShouldReturnOk_WhenServiceReturnsData()
             {
+                var businessCard = new BusinessCardFilter() { Email = "mostafa2424@example.com" };
+
                 // Arrange
                 var cards = new List<BusinessCard> { new BusinessCard
                         {
@@ -95,10 +97,10 @@ namespace BusinessCardInformation.Test
                             PhotoBase64 = GenerateBase64Image(1) // 1MB photo
                         } };
                 var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
-                _mockService.Setup(s => s.GetAllAsync(new BusinessCardFilter())).ReturnsAsync(serviceResult);
+                _mockService.Setup(s => s.GetAllAsync(businessCard)).ReturnsAsync(serviceResult);
 
                 // Act
-                var result = await _controller.GetAllBusinessCards();
+                var result = await _controller.GetAllBusinessCards(businessCard);
 
                 // Assert
                 var okResult = Assert.IsType<OkObjectResult>(result);
@@ -228,6 +230,89 @@ namespace BusinessCardInformation.Test
                 var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("Unsupported file format.", badRequestResult.Value);
             }
+
+
+            [Fact]
+            public async Task ExportToXml_ShouldSaveFileAndReturnFileResult()
+            {
+                var faker = new Bogus.Faker<BusinessCard>()
+                    .RuleFor(b => b.Id, f => f.IndexFaker + 1)
+                    .RuleFor(b => b.Name, f => f.Name.FullName())
+                    .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                    .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                    .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                    .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                    .RuleFor(b => b.Address, f => f.Address.FullAddress());
+
+                var cards = faker.Generate(10);
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
+                _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
+
+                var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
+                var xmlFilePath = Path.Combine(projectRoot, "business_cards.xml");
+
+                if (System.IO.File.Exists(xmlFilePath))
+                {
+                    System.IO.File.Delete(xmlFilePath); 
+                }
+
+                var result = await _controller.ExportToXml();  
+
+                var fileResult = Assert.IsType<FileContentResult>(result);
+
+                Assert.Equal("application/xml", fileResult.ContentType);
+
+                var xmlContent = Encoding.UTF8.GetString(fileResult.FileContents);
+                Assert.NotEmpty(xmlContent); 
+
+                await System.IO.File.WriteAllBytesAsync(xmlFilePath, fileResult.FileContents);
+
+                Assert.True(System.IO.File.Exists(xmlFilePath), $"The file {xmlFilePath} was not saved correctly.");
+
+                _mockService.Verify(s => s.GetAllAsync(null), Times.Once);
+            }
+
+            [Fact]
+            public async Task ExportToCsv_ShouldSaveFileAndReturnFileResult()
+            {
+                var faker = new Bogus.Faker<BusinessCard>()
+                           .RuleFor(b => b.Id, f => f.IndexFaker + 1)
+                           .RuleFor(b => b.Name, f => f.Name.FullName())
+                           .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                           .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                           .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                           .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                           .RuleFor(b => b.Address, f => f.Address.FullAddress());
+
+                var cards = faker.Generate(10);
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
+                _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
+
+                var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
+                var csvFilePath = Path.Combine(projectRoot, "business_cards.csv");
+
+                if (System.IO.File.Exists(csvFilePath))
+                {
+                    System.IO.File.Delete(csvFilePath); 
+                }
+
+                var result = await _controller.ExportToCsv();
+
+                var fileResult = Assert.IsType<FileContentResult>(result);
+
+                Assert.Equal("text/csv", fileResult.ContentType);
+
+                var csvContent = Encoding.UTF8.GetString(fileResult.FileContents);
+
+            
+                await System.IO.File.WriteAllBytesAsync(csvFilePath, fileResult.FileContents);
+
+                Assert.True(System.IO.File.Exists(csvFilePath), $"The file {csvFilePath} was not saved correctly.");
+                
+                _mockService.Verify(s => s.GetAllAsync(null), Times.Once);
+            }
+
+
 
             private static string GenerateBase64Image(int sizeInMB)
             {

@@ -44,7 +44,7 @@ namespace BusinessCardInformation.Controllers
 
         // GET: api/BusinessCard
         [HttpGet]
-        public async Task<IActionResult> GetAllBusinessCards([FromQuery] BusinessCardFilter filter = null)
+        public async Task<IActionResult> GetAllBusinessCards([FromQuery] BusinessCardFilter filter)
         {
             var result = await _businessCardService.GetAllAsync(filter);
             if (!result.IsSuccess)

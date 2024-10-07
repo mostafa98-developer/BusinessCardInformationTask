@@ -1,0 +1,82 @@
+<mat-horizontal-stepper linear>
+  <mat-step [completed]="businessCardForm.valid">
+    <form [formGroup]="businessCardForm" (ngSubmit)="onSubmit()">
+      <ng-template matStepLabel>Business Card Details</ng-template>
+
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" required />
+        <mat-error *ngIf="businessCardForm.get('name')?.invalid && (businessCardForm.get('name')?.touched || businessCardForm.get('name')?.dirty)">
+          Name is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Gender</mat-label>
+        <mat-select formControlName="gender" required>
+          <mat-option value="Male">Male</mat-option>
+          <mat-option value="Female">Female</mat-option>
+        </mat-select>
+        <mat-error *ngIf="businessCardForm.get('gender')?.invalid && (businessCardForm.get('gender')?.touched || businessCardForm.get('gender')?.dirty)">
+          Gender is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Date of Birth</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" required />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="businessCardForm.get('dateOfBirth')?.invalid && (businessCardForm.get('dateOfBirth')?.touched || businessCardForm.get('dateOfBirth')?.dirty)">
+          Date of birth is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" required />
+        <mat-error *ngIf="businessCardForm.get('email')?.invalid && (businessCardForm.get('email')?.touched || businessCardForm.get('email')?.dirty)">
+          Valid email is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone" required />
+        <mat-error *ngIf="businessCardForm.get('phone')?.invalid && (businessCardForm.get('phone')?.touched || businessCardForm.get('phone')?.dirty)">
+          Phone number is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="address" required />
+        <mat-error *ngIf="businessCardForm.get('address')?.invalid && (businessCardForm.get('address')?.touched || businessCardForm.get('address')?.dirty)">
+          Address is required.
+        </mat-error>
+      </mat-form-field>
+
+      <div>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+
+  <mat-step>
+    <ng-template matStepLabel>Review Details</ng-template>
+
+    <div>
+      <p><strong>Name:</strong> {{ businessCard?.name }}</p>
+      <p><strong>Gender:</strong> {{ businessCard?.gender }}</p>
+      <p><strong>Date of Birth:</strong> {{ businessCard?.dateOfBirth | date }}</p>
+      <p><strong>Email:</strong> {{ businessCard?.email }}</p>
+      <p><strong>Phone:</strong> {{ businessCard?.phone }}</p>
+      <p><strong>Address:</strong> {{ businessCard?.address }}</p>
+    </div>
+
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="save()">Save</button>
+    </div>
+  </mat-step>
+</mat-horizontal-stepper>

@@ -15,5 +15,6 @@ namespace BusinessCardInformation.Core.IServices
         Task<ServiceResult<T>> AddAsync(T entity);
         Task<ServiceResult<T>> UpdateAsync(T entity);
         Task<ServiceResult<T>> DeleteAsync(int id);
+        Task<ServiceResult<IEnumerable<T>>> AddBulkAsync(IEnumerable<T> entities);
     }
 }

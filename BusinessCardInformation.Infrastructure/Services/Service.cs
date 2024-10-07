@@ -69,5 +69,28 @@ namespace BusinessCardInformation.Infrastructure.Services
             await _repository.DeleteAsync(id);
             return new ServiceResult<T>(existingCard);
         }
+
+        public async Task<ServiceResult<IEnumerable<T>>> AddBulkAsync(IEnumerable<T> entities)
+        {
+            if (entities == null || !entities.Any())
+            {
+                return new ServiceResult<IEnumerable<T>>("Invalid input.");
+            }
+
+            var addedEntities = new List<T>();
+            foreach (var entity in entities)
+            {
+                if (entity == null)
+                {
+                    return new ServiceResult<IEnumerable<T>>("Invalid input.");
+                }
+
+                await _repository.AddAsync(entity);
+                addedEntities.Add(entity);
+            }
+
+            return new ServiceResult<IEnumerable<T>>(addedEntities);
+        }
+
     }
 }

@@ -88,13 +88,31 @@ namespace BusinessCardInformation.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPost("import")]
-        public IActionResult ImportBusinessCards(IFormFile file)
+        [HttpPost("bulk")]
+        public async Task<IActionResult> ImportBulk([FromBody] IEnumerable<BusinessCard> cards)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("File is missing.");
+            var result = await _businessCardService.AddBulkAsync(cards);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
+            return Ok(result.Data);
+        }
+
+        [HttpPost("import")]
+        public async Task<ServiceResult<IEnumerable<BusinessCard>>> ImportBusinessCards(IFormFile file)
+        {
             List<BusinessCard> businessCards;
+            var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>("File is missing.");
+
+            if (file == null || file.Length == 0)
+            {
+                return serviceResult;
+            }
+
+            
+
 
             string fileExtension = Path.GetExtension(file.FileName);
             using (var stream = new StreamReader(file.OpenReadStream()))
@@ -109,12 +127,12 @@ namespace BusinessCardInformation.Controllers
                 }
                 else
                 {
-                    return BadRequest("Unsupported file format.");
+                    serviceResult.ErrorMessage = "Unsupported file format.";
+                    return serviceResult;
                 }
             }
-
-            // Save to database logic
-            return Ok($"{businessCards.Count} business cards imported successfully.");
+            serviceResult.Data = businessCards;
+            return serviceResult;
         }
 
         [HttpGet("export/xml")]

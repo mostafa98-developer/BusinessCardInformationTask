@@ -1,3 +1,40 @@
+<div class="toolbar">
+
+  <mat-form-field >
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="filter.name" placeholder="Phone Number">
+  </mat-form-field>
+
+  <mat-form-field >
+    <mat-label>Email</mat-label>
+    <input matInput [(ngModel)]="filter.email" placeholder="Phone Number">
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Date of Birth</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="filter.dob" placeholder="YYYY-MM-DD">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field >
+    <mat-label>Phone</mat-label>
+    <input matInput [(ngModel)]="filter.phone" placeholder="Phone Number">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Gender</mat-label>
+    <mat-select [(ngModel)]="filter.gender" placeholder="Select Gender">
+      <mat-option *ngFor="let gender of genderOptions" [value]="gender">
+        {{ gender }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="loadBusinessCards()">Search</button>
+  <button mat-raised-button color="primary" (click)="Reset()">Reset</button>
+  <button mat-raised-button color="accent" (click)="addNew()">Add New</button>
+  <button mat-raised-button color="warn" (click)="importFromFile()">Import</button>
+</div>
+
 <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
   <ng-container matColumnDef="name">
     <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
@@ -29,17 +66,17 @@
     <mat-cell *matCellDef="let card"> {{ card.address }} </mat-cell>
   </ng-container>
 
-  <!-- <ng-container matColumnDef="actions">
+  <ng-container matColumnDef="actions">
     <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
     <mat-cell *matCellDef="let card">
       <button mat-icon-button (click)="editBusinessCard(card)">
         <mat-icon>edit</mat-icon>
       </button>
-      <button mat-icon-button (click)="deleteBusinessCard(card)">
+      <button mat-icon-button (click)="editBusinessCard(card)">
         <mat-icon>delete</mat-icon>
       </button>
     </mat-cell>
-  </ng-container> -->
+  </ng-container>
 
   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
   <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>

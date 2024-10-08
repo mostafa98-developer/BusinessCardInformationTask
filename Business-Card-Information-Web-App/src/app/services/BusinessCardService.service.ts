@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BusinessCard } from '../models/business-card.model';
 import { environment } from '../../environments/environment';
+import { BusinessCardFilter } from '../models/business-card.filter.model';
+import { toHttpParams } from './helper/toHttpParams.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +19,9 @@ export class BusinessCardService {
     return this.http.post<BusinessCard>(this.apiUrl, card);
   }
 
-  getAllBusinessCards(filter?: any): Observable<BusinessCard[]> {
-    return this.http.get<BusinessCard[]>(this.apiUrl, { params: filter });
+  getAllBusinessCards(filter?: BusinessCardFilter): Observable<BusinessCard[]> {
+    const params = toHttpParams(filter); // Use the dynamic converter
+    return this.http.get<BusinessCard[]>(this.apiUrl, { params: params });
   }
 
   updateBusinessCard(card: BusinessCard): Observable<BusinessCard> {

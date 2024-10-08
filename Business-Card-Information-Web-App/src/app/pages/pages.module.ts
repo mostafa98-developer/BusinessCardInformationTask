@@ -13,6 +13,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BusinessCardInformationManageComponent } from './business-card-information-manage/business-card-information-manage.component';
 import { BusinessCardInformationListComponent } from './business-card-information-list/business-card-information-list.component';
 import { MatTableModule } from '@angular/material/table';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';  // Import FormsModule
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { MatTableModule } from '@angular/material/table';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     PagesRoutingModule,
      // other modules
      ReactiveFormsModule,
@@ -31,7 +34,8 @@ import { MatTableModule } from '@angular/material/table';
      MatDatepickerModule,
      MatNativeDateModule,
      MatButtonModule,
-     MatTableModule
+     MatTableModule,
+     MatIcon
   ]
 })
 export class PagesModule { }

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BusinessCard } from '../../models/business-card.model';
 import { BusinessCardService } from '../../services/BusinessCardService.service';
 import { MatDialog } from '@angular/material/dialog';
+import { BusinessCardFilter } from '../../models/business-card.filter.model';
 
 @Component({
   selector: 'app-business-card-information-list',
@@ -9,8 +10,12 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrl: './business-card-information-list.component.css'
 })
 export class BusinessCardInformationListComponent {
+
   displayedColumns: string[] = ['name', 'gender', 'dateOfBirth', 'email', 'phone', 'address', 'actions'];
   dataSource: BusinessCard[] = [];
+  filter: BusinessCardFilter = new BusinessCardFilter();
+  genderOptions = ['Male', 'Female'];
+
   constructor(private businessCardService: BusinessCardService,private dialog: MatDialog) {}
 
 
@@ -22,10 +27,22 @@ export class BusinessCardInformationListComponent {
     this.getAllCards()
   }
 
-
+  Reset() {
+    this.filter = {};
+    this.loadBusinessCards();
+  }
+  importFromFile() {
+    throw new Error('Method not implemented.');
+  }
+  addNew() {
+    throw new Error('Method not implemented.');
+  }
+  editBusinessCard(_t77: any) {
+    throw new Error('Method not implemented.');
+  }
 
   getAllCards() {
-    this.businessCardService.getAllBusinessCards().subscribe(cards => {
+    this.businessCardService.getAllBusinessCards(this.filter).subscribe(cards => {
       this.dataSource = cards;
     });
   }

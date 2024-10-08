@@ -1,0 +1,4 @@
+.custom-dialog-container {
+  width: 600px !important;  /* Enforce the width */
+  max-width: 100%;          /* Ensure it is responsive */
+}

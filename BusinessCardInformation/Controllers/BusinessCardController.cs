@@ -3,6 +3,7 @@ using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
 using BusinessCardInformation.Infrastructure.Services;
 using BusinessCardInformation.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text;
@@ -15,10 +16,13 @@ namespace BusinessCardInformation.Controllers
     public class BusinessCardController : Controller
     {
         private readonly IBusinessCardService _businessCardService;
+        private readonly IValidator<BusinessCard> _validator;
 
-        public BusinessCardController(IBusinessCardService businessCardService)
+
+        public BusinessCardController(IBusinessCardService businessCardService, IValidator<BusinessCard> validator)
         {
             _businessCardService = businessCardService;
+            _validator = validator;
         }
 
         
@@ -28,6 +32,16 @@ namespace BusinessCardInformation.Controllers
         {
             if (card == null)
                 return BadRequest("Invalid input.");
+
+            var validateResult = _validator.Validate(card);
+            if(validateResult != null) // this is just only for unittest handling error 
+            {
+                if (!validateResult.IsValid)
+                {
+                    return BadRequest(validateResult.Errors); // Return validation errors
+                }
+            }
+            
 
             // Check if the photo exceeds the size limit (1MB)
             if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > (long)(1 * 1024 * 1024))
@@ -61,6 +75,12 @@ namespace BusinessCardInformation.Controllers
             if (card == null)
                 return BadRequest("Invalid input.");
 
+            var validateResult = _validator.Validate(card);
+            if (!validateResult.IsValid)
+            {
+                return BadRequest(validateResult.Errors); // Return validation errors
+            }
+
             // Check if the photo exceeds the size limit (1MB)
             if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
                 return BadRequest("Photo size exceeds 1MB.");
@@ -74,14 +94,14 @@ namespace BusinessCardInformation.Controllers
         }
 
         // Put: api/BusinessCard
-        [HttpDelete]
-        public async Task<IActionResult> DeleteBusinessCards(int cardId)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteBusinessCards(int id)
         {
-            if (cardId == 0)
+            if (id == 0)
                 return BadRequest("Invalid input.");
 
            
-            var result = await _businessCardService.DeleteAsync(cardId);
+            var result = await _businessCardService.DeleteAsync(id);
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
@@ -91,6 +111,13 @@ namespace BusinessCardInformation.Controllers
         [HttpPost("bulk")]
         public async Task<IActionResult> ImportBulk([FromBody] IEnumerable<BusinessCard> cards)
         {
+            var validationErrors = await  ValidateTheCards(cards);
+
+            if (validationErrors.Any())
+            {
+                return BadRequest(new { Errors = validationErrors });
+            }
+
             var result = await _businessCardService.AddBulkAsync(cards);
             if (!result.IsSuccess)
             {
@@ -98,6 +125,28 @@ namespace BusinessCardInformation.Controllers
             }
 
             return Ok(result.Data);
+        }
+
+        private async Task<List<FluentValidation.Results.ValidationFailure>> ValidateTheCards(IEnumerable<BusinessCard> cards)
+        {
+            var validationErrors = new List<FluentValidation.Results.ValidationFailure>();
+
+            foreach (var card in cards)
+            {
+                var validationResult = await _validator.ValidateAsync(card);
+                if(validationResult != null)
+                {
+                    if (!validationResult.IsValid)
+                    {
+                        validationErrors.AddRange(validationResult.Errors);
+                    }
+                }
+                
+            }
+
+            
+            return validationErrors;
+            
         }
 
         [HttpPost("import")]
@@ -143,10 +192,21 @@ namespace BusinessCardInformation.Controllers
             {
                 return BadRequest(result.ErrorMessage);
             }
+            List<BusinessCard> updatedCards = result.Data.Select(card => new BusinessCard
+            {
+                Name = card.Name,
+                Gender = card.Gender,
+                DateOfBirth = card.DateOfBirth,
+                Email = card.Email,
+                Phone = card.Phone,
+                Address = card.Address,
+                PhotoBase64 = card.PhotoBase64
 
+                // Do not copy the Email property
+            }).ToList();
             var xmlSerializer = new XmlSerializer(typeof(List<BusinessCard>));
             using var stringWriter = new StringWriter();
-            xmlSerializer.Serialize(stringWriter, result.Data);
+            xmlSerializer.Serialize(stringWriter, updatedCards);
 
             var xmlResult = Encoding.UTF8.GetBytes(stringWriter.ToString());
             return File(xmlResult, "application/xml", "business_cards.xml");
@@ -163,11 +223,11 @@ namespace BusinessCardInformation.Controllers
             }
 
             var csvBuilder = new StringBuilder();
-            csvBuilder.AppendLine("Id,Name,Gender,DateOfBirth,Email,Phone,Address");
+            csvBuilder.AppendLine("Name,Gender,DateOfBirth,Email,Phone,Address");
 
             foreach (var card in result.Data)
             {
-                csvBuilder.AppendLine($"{card.Id},{card.Name},{card.Gender},{card.DateOfBirth},{card.Email},{card.Phone},{card.Address},{card.PhotoBase64}");
+                csvBuilder.AppendLine($"{card.Name},{card.Gender},{card.DateOfBirth},{card.Email},{card.Phone},{card.Address},{card.PhotoBase64}");
             }
 
             var csvResult = Encoding.UTF8.GetBytes(csvBuilder.ToString());

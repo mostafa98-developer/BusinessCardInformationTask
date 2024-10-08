@@ -53,5 +53,15 @@ namespace BusinessCardInformation.Infrastructure.Repositories
             // Execute the query and return results
             return await query.ToListAsync();
         }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _dbContext.BusinessCards.AnyAsync(b => b.Email == email);
+        }
+
+        public async Task<bool> PhoneExistsAsync(string phone)
+        {
+            return await _dbContext.BusinessCards.AnyAsync(b => b.Phone == phone);
+        }
     }
 }

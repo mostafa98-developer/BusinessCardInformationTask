@@ -1,17 +1,20 @@
 using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.IRepository;
 using BusinessCardInformation.Core.IServices;
+using BusinessCardInformation.Core.Validators;
 using BusinessCardInformation.Infrastructure.Data;
 using BusinessCardInformation.Infrastructure.Repositories;
 using BusinessCardInformation.Infrastructure.Services;
 using BusinessCardInformation.Middlewares;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation(fv =>
+                    fv.RegisterValidatorsFromAssemblyContaining<BusinessCardValidator>());
 
 
 // Enable CORS

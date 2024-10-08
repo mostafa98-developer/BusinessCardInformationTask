@@ -3,6 +3,7 @@ using BusinessCardInformation.Controllers;
 using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,12 +17,14 @@ namespace BusinessCardInformation.Test
         public class BusinessCardControllerTests
         {
             private readonly Mock<IBusinessCardService> _mockService;
+            private readonly Mock<IValidator<BusinessCard>> _mockValidator;
             private readonly BusinessCardController _controller;
 
             public BusinessCardControllerTests()
             {
                 _mockService = new Mock<IBusinessCardService>();
-                _controller = new BusinessCardController(_mockService.Object);
+                _mockValidator = new Mock<IValidator<BusinessCard>>();
+                _controller = new BusinessCardController(_mockService.Object, _mockValidator.Object);
             }
 
             [Fact]
@@ -269,25 +272,23 @@ namespace BusinessCardInformation.Test
             [Fact]
             public async Task ExportToXml_ShouldSaveFileAndReturnFileResult()
             {
-                var faker = new Bogus.Faker<BusinessCard>()
-                    .RuleFor(b => b.Name, f => f.Name.FullName())
-                    .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
-                    .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
-                    .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
-                    .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
-                    .RuleFor(b => b.Address, f => f.Address.FullAddress());
+                var faker = new Faker<BusinessCard>()
+                        .RuleFor(b => b.Name, f => f.Name.FullName())
+                        .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                        .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                        .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                        .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                        .RuleFor(b => b.Address, f => f.Address.FullAddress())
+                        .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
 
                 var cards = faker.Generate(10);
                 var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
                 _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
 
                 var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
-                var xmlFilePath = Path.Combine(projectRoot, "business_cards.xml");
+                var xmlFilePath = Path.Combine(projectRoot, "business_cards" + Guid.NewGuid().ToString() + ".xml");
 
-                if (System.IO.File.Exists(xmlFilePath))
-                {
-                    System.IO.File.Delete(xmlFilePath); 
-                }
+               
 
                 var result = await _controller.ExportToXml();  
 
@@ -308,25 +309,23 @@ namespace BusinessCardInformation.Test
             [Fact]
             public async Task ExportToCsv_ShouldSaveFileAndReturnFileResult()
             {
-                var faker = new Bogus.Faker<BusinessCard>()
-                           .RuleFor(b => b.Name, f => f.Name.FullName())
-                           .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
-                           .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
-                           .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
-                           .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
-                           .RuleFor(b => b.Address, f => f.Address.FullAddress());
+                var faker = new Faker<BusinessCard>()
+                        .RuleFor(b => b.Name, f => f.Name.FullName())
+                        .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                        .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                        .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                        .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                        .RuleFor(b => b.Address, f => f.Address.FullAddress())
+                        .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
 
                 var cards = faker.Generate(10);
                 var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
                 _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
 
                 var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
-                var csvFilePath = Path.Combine(projectRoot, "business_cards.csv");
+                var csvFilePath = Path.Combine(projectRoot, "business_cards" + Guid.NewGuid().ToString()+".csv");
 
-                if (System.IO.File.Exists(csvFilePath))
-                {
-                    System.IO.File.Delete(csvFilePath); 
-                }
+                
 
                 var result = await _controller.ExportToCsv();
 

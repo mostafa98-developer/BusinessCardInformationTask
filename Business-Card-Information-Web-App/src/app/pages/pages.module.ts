@@ -15,11 +15,15 @@ import { BusinessCardInformationListComponent } from './business-card-informatio
 import { MatTableModule } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';  // Import FormsModule
+import { ImportBusinessCardsFromFileComponent } from './import-business-cards-from-file/import-business-cards-from-file.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar'; // Import Material Snackbar
 
 @NgModule({
   declarations: [
     BusinessCardInformationManageComponent,
-    BusinessCardInformationListComponent
+    BusinessCardInformationListComponent,
+    ImportBusinessCardsFromFileComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +39,9 @@ import { FormsModule } from '@angular/forms';  // Import FormsModule
      MatNativeDateModule,
      MatButtonModule,
      MatTableModule,
-     MatIcon
-  ]
+     MatIcon,
+     MatDialogModule,
+     MatSnackBarModule
+  ],
 })
 export class PagesModule { }

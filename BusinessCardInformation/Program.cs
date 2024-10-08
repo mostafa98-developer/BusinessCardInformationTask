@@ -13,6 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+    builder =>
+    {
+        builder.WithOrigins("http://localhost:4200") // Allow Angular dev server
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials(); // Optional if you're using credentials (cookies, etc.)
+    });
+});
+
 // Register DbContext for SQL Server
 builder.Services.AddDbContext<BusinessCardDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("BusinessCardInformation")));
@@ -28,6 +42,7 @@ builder.Services.AddScoped<IBusinessCardService, BusinessCardService>();
 builder.Services.AddScoped<BusinessCardService>();
 
 var app = builder.Build();
+app.UseCors("AllowSpecificOrigins");
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
@@ -49,8 +64,6 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
-
-app.UseAuthorization();
 
 app.MapControllers();
 

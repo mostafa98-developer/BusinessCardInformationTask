@@ -27,7 +27,7 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/magenta-violet.css",
+              "@angular/material/prebuilt-themes/rose-red.css",
               "src/styles.css"
             ],
             "scripts": [],
@@ -97,7 +97,7 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/magenta-violet.css",
+              "@angular/material/prebuilt-themes/rose-red.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -107,6 +107,9 @@
     }
   },
   "cli": {
-    "analytics": "0eb24d55-8146-4edd-b14e-1ed6de61be73"
+    "analytics": "0eb24d55-8146-4edd-b14e-1ed6de61be73",
+    "cache": {
+      "enabled": false
+    }
   }
 }

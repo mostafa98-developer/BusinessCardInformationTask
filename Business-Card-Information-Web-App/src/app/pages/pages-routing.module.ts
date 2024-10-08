@@ -6,6 +6,7 @@ import { BusinessCardInformationListComponent } from './business-card-informatio
 const routes: Routes = [
   { path: '', redirectTo: 'business-bard-information-list', pathMatch: 'full' },
   { path: 'business-bard-information-manage', component: BusinessCardInformationManageComponent },
+  { path: 'business-bard-information-manage/:id', component: BusinessCardInformationManageComponent },
   { path: 'business-bard-information-list', component: BusinessCardInformationListComponent }
 ];
 

@@ -20,8 +20,8 @@ namespace BusinessCardInformation.Migrations
                         Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                         Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                         DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                        Email = table.Column<string>(type: "nvarchar(256)", nullable: false), // Specify length for index optimization
-                        Phone = table.Column<string>(type: "nvarchar(15)", nullable: false),  // Specify length for phone numbers
+                        Email = table.Column<string>(type: "nvarchar(300)", nullable: false), // Specify length for index optimization
+                        Phone = table.Column<string>(type: "nvarchar(40)", nullable: false),  // Specify length for phone numbers
                         Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                         PhotoBase64 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                         CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),

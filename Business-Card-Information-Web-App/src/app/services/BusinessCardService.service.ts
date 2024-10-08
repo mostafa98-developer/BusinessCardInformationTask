@@ -38,7 +38,7 @@ export class BusinessCardService {
 
   importBusinessCards(file: File): Observable<any> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file,file.name);
 
     return this.http.post<any>(`${this.apiUrl}/import`, formData);
   }

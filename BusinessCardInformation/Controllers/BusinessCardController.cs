@@ -33,7 +33,7 @@ namespace BusinessCardInformation.Controllers
             if (card == null)
                 return BadRequest("Invalid input.");
 
-            var validateResult = _validator.Validate(card);
+            var validateResult = await _validator.ValidateAsync(card);
             if(validateResult != null) // this is just only for unittest handling error 
             {
                 if (!validateResult.IsValid)
@@ -67,6 +67,20 @@ namespace BusinessCardInformation.Controllers
             return Ok(result.Data);
         }
 
+        // GET: api/BusinessCard
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetCardById(int id)
+        {
+            if (id == 0)
+                return BadRequest("Invalid input.");
+
+            var result = await _businessCardService.GetByIdAsync(id);
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Data);
+        }
+
 
         // Put: api/BusinessCard
         [HttpPut]
@@ -75,10 +89,13 @@ namespace BusinessCardInformation.Controllers
             if (card == null)
                 return BadRequest("Invalid input.");
 
-            var validateResult = _validator.Validate(card);
-            if (!validateResult.IsValid)
+            var validateResult = await _validator.ValidateAsync(card);
+            if (validateResult != null) // this is just only for unittest handling error 
             {
-                return BadRequest(validateResult.Errors); // Return validation errors
+                if (!validateResult.IsValid)
+                {
+                    return BadRequest(validateResult.Errors); // Return validation errors
+                }
             }
 
             // Check if the photo exceeds the size limit (1MB)

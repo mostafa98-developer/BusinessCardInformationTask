@@ -2,6 +2,7 @@
   <mat-step [completed]="businessCardForm.valid">
     <form [formGroup]="businessCardForm" (ngSubmit)="onSubmit()">
       <ng-template matStepLabel>Business Card Details</ng-template>
+      <app-photo-upload (photoUploaded)="onPhotoUploaded($event)"></app-photo-upload>
 
       <mat-form-field>
         <mat-label>Name</mat-label>
@@ -66,6 +67,9 @@
     <ng-template matStepLabel>Review Details</ng-template>
 
     <div>
+      <div class="preview-container" *ngIf="businessCard?.photoBase64">
+        <img [src]="businessCard.photoBase64"  class="photo-preview" />
+      </div>
       <p><strong>Name:</strong> {{ businessCard?.name }}</p>
       <p><strong>Gender:</strong> {{ businessCard?.gender }}</p>
       <p><strong>Date of Birth:</strong> {{ businessCard?.dateOfBirth | date }}</p>

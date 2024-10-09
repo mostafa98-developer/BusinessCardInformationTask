@@ -6,6 +6,8 @@ import { BusinessCardFilter } from '../../models/business-card.filter.model';
 import { ImportBusinessCardsFromFileComponent } from '../import-business-cards-from-file/import-business-cards-from-file.component';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { NotificationService } from '../../services/helper/notification.service';
 
 @Component({
   selector: 'app-business-card-information-list',
@@ -19,7 +21,11 @@ export class BusinessCardInformationListComponent {
   genderOptions = ['Male', 'Female'];
   dataSource = new MatTableDataSource<BusinessCard>([]);
 
-  constructor(private snackBar: MatSnackBar,private businessCardService: BusinessCardService,private dialog: MatDialog) {}
+  constructor(private snackBar: MatSnackBar,
+    private businessCardService: BusinessCardService,
+    private dialog: MatDialog,
+    private router: Router,
+    private notificationService: NotificationService) {}
 
 
   ngOnInit(): void {
@@ -48,7 +54,7 @@ export class BusinessCardInformationListComponent {
   }
 
   addNew() {
-    throw new Error('Method not implemented.');
+    this.router.navigateByUrl('pages/business-bard-information-manage');
   }
 
 
@@ -59,20 +65,25 @@ export class BusinessCardInformationListComponent {
   }
 
   updateCard(card: BusinessCard) {
-    this.businessCardService.updateBusinessCard(card).subscribe(response => {
-      console.log('Card updated:', response);
-    });
+    this.router.navigateByUrl('pages/business-bard-information-manage/'+card.id);
   }
 
   deleteCard(cardId: number) {
-    this.businessCardService.deleteBusinessCard(cardId).subscribe(response => {
-      if(response){
-        this.snackBar.open('Card deleted', 'Close', {
-          duration: 5000,
-        });
-        this.loadBusinessCards()
-      }
-    });
+    this.notificationService.confirm('Are you sure you want to delete this item?')
+      .subscribe(result => {
+        if (result) {
+          this.businessCardService.deleteBusinessCard(cardId).subscribe(response => {
+            if(response){
+              this.notificationService.showSuccess('Card deleted successfully!');
+              this.loadBusinessCards()
+            }
+          });
+        } else {
+          this.notificationService.showError('Something went wrong!');
+        }
+      });
+
+
   }
 
   exportToXml() {

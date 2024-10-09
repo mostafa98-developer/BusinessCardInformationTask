@@ -1,0 +1,18 @@
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.spacer {
+  flex: 1 1 auto; /* Pushes the links to the right */
+}
+
+nav a {
+  color: rgb(13, 12, 12); /* Link color */
+}
+
+nav button {
+  color: rgb(8, 7, 7); /* Button color */
+}

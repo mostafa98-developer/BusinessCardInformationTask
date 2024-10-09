@@ -24,6 +24,10 @@ export class BusinessCardService {
     return this.http.get<BusinessCard[]>(this.apiUrl, { params: params });
   }
 
+  getCardById(cardId: number): Observable<BusinessCard> {
+    return this.http.get<BusinessCard>(`${this.apiUrl}/${cardId}`);
+  }
+
   updateBusinessCard(card: BusinessCard): Observable<BusinessCard> {
     return this.http.put<BusinessCard>(this.apiUrl, card);
   }

@@ -1,0 +1,12 @@
+<div class="photo-upload-container">
+  <label class="file-upload-label">
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input" />
+    Upload your photo
+  </label>
+
+  <div class="preview-container" *ngIf="photoBase64">
+    <img [src]="photoBase64" alt="Uploaded Photo" class="photo-preview" />
+  </div>
+
+  <mat-error *ngIf="fileError">{{ fileError }}</mat-error>
+</div>

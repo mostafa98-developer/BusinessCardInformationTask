@@ -1,0 +1,49 @@
+.photo-upload-container {
+  width: 100%;
+  max-width: 400px; /* Set a max width for the container */
+  margin: 20px auto; /* Center the container */
+}
+
+.file-input {
+  display: none; /* Hide the actual file input */
+}
+
+.file-upload-label {
+  display: inline-block; /* Ensure the label behaves like a button */
+  background-color: #007bff; /* Button background color */
+  color: white; /* Text color */
+  padding: 10px 15px; /* Add padding for aesthetics */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Change cursor to pointer */
+  text-align: center; /* Center the text */
+  transition: background-color 0.3s; /* Transition effect */
+}
+
+.file-upload-label:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.preview-container {
+  margin-top: 15px; /* Add space between the file input and the image preview */
+  display: flex; /* Flexbox for centering the preview */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.photo-preview {
+  width: 150px; /* Fixed width for preview */
+  height: 150px; /* Fixed height for preview */
+  object-fit: cover; /* Maintain aspect ratio */
+  border-radius: 50%; /* Circular image */
+  border: 2px solid #007bff; /* Border color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  transition: transform 0.2s; /* Smooth scaling on hover */
+}
+
+.photo-preview:hover {
+  transform: scale(1.05); /* Scale up slightly on hover */
+}
+
+.mat-error {
+  color: red; /* Custom color for error message */
+}

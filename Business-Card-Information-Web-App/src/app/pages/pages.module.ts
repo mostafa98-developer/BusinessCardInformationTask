@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';  // Import FormsModule
 import { ImportBusinessCardsFromFileComponent } from './import-business-cards-from-file/import-business-cards-from-file.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // Import Material Snackbar
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -31,17 +32,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'; // Import Mater
     PagesRoutingModule,
      // other modules
      ReactiveFormsModule,
-     MatStepperModule,
-     MatInputModule,
-     MatFormFieldModule,
-     MatSelectModule,
-     MatDatepickerModule,
-     MatNativeDateModule,
-     MatButtonModule,
-     MatTableModule,
-     MatIcon,
-     MatDialogModule,
-     MatSnackBarModule
+
+     SharedModule
   ],
 })
 export class PagesModule { }

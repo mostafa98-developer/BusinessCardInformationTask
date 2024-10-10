@@ -72,6 +72,7 @@ export class BusinessCardInformationManageComponent {
   }
 
   private update() {
+    this.businessCard.id = this.id;
     this.businessCardService.updateBusinessCard(this.businessCard).subscribe(response => {
       if (response) {
         this.notificationService.showSuccess('Saved successfully!');

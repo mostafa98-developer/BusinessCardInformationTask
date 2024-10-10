@@ -56,6 +56,15 @@ namespace BusinessCardInformation.Infrastructure.Repositories
 
         public async Task UpdateAsync(T entity)
         {
+            var trackedEntity = _dbContext.ChangeTracker.Entries<T>().FirstOrDefault(e => e.Entity.Id == entity.Id);
+
+            if (trackedEntity != null)
+            {
+                // Detach the already tracked entity
+                _dbContext.Entry(trackedEntity.Entity).State = EntityState.Detached;
+            }
+
+            // Attach the new entity and mark it as modified
             _dbSet.Attach(entity);
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();

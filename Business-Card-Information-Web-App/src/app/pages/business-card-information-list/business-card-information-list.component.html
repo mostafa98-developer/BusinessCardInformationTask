@@ -1,41 +1,49 @@
 <div class="toolbar">
+  <!-- Form Fields -->
+  <div class="form-fields">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput [(ngModel)]="filter.name" placeholder="Phone Number">
+    </mat-form-field>
 
-  <mat-form-field >
-    <mat-label>Name</mat-label>
-    <input matInput [(ngModel)]="filter.name" placeholder="Phone Number">
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="filter.email" placeholder="Phone Number">
+    </mat-form-field>
 
-  <mat-form-field >
-    <mat-label>Email</mat-label>
-    <input matInput [(ngModel)]="filter.email" placeholder="Phone Number">
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Date of Birth</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="filter.dob" placeholder="YYYY-MM-DD">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Date of Birth</mat-label>
-    <input matInput [matDatepicker]="picker" [(ngModel)]="filter.dob" placeholder="YYYY-MM-DD">
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
-  <mat-form-field >
-    <mat-label>Phone</mat-label>
-    <input matInput [(ngModel)]="filter.phone" placeholder="Phone Number">
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Gender</mat-label>
-    <mat-select [(ngModel)]="filter.gender" placeholder="Select Gender">
-      <mat-option *ngFor="let gender of genderOptions" [value]="gender">
-        {{ gender }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Phone</mat-label>
+      <input matInput [(ngModel)]="filter.phone" placeholder="Phone Number">
+    </mat-form-field>
 
-  <button mat-raised-button color="primary" (click)="loadBusinessCards()">Search</button>
-  <button mat-raised-button color="primary" (click)="Reset()">Reset</button>
-  <button mat-raised-button color="accent" (click)="addNew()">Add New</button>
-  <button mat-raised-button color="warn" (click)="importFromFile()">Import</button>
-  <button mat-raised-button color="warn" (click)="exportToCsv()">Export To Csv</button>
-  <button mat-raised-button color="warn" (click)="exportToXml()">Export To XML</button>
+    <mat-form-field>
+      <mat-label>Gender</mat-label>
+      <mat-select [(ngModel)]="filter.gender" placeholder="Select Gender">
+        <mat-option *ngFor="let gender of genderOptions" [value]="gender">
+          {{ gender }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button mat-raised-button color="primary" (click)="loadBusinessCards()">Search</button>
+    <button mat-raised-button color="primary" (click)="Reset()">Reset</button>
+    <button mat-raised-button color="accent" (click)="addNew()">Add New</button>
+    <button mat-raised-button color="warn" (click)="importFromFile()">Import</button>
+    <button mat-raised-button color="warn" (click)="exportToCsv()">Export To CSV</button>
+    <button mat-raised-button color="warn" (click)="exportToXml()">Export To XML</button>
+  </div>
 </div>
+
 
 <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
   <ng-container matColumnDef="name">

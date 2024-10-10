@@ -3,6 +3,8 @@ mat-toolbar {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
+  background-color: #E5C3CA; /* Green color */
+  color: white; /* Text color */
 }
 
 .spacer {
@@ -10,9 +12,11 @@ mat-toolbar {
 }
 
 nav a {
-  color: rgb(13, 12, 12); /* Link color */
+  color: rgb(0, 0, 0); /* Link color */
+  font-weight: bolder;
 }
 
 nav button {
-  color: rgb(8, 7, 7); /* Button color */
+  color: rgb(0, 0, 0); /* Button color */
+  font-weight: bolder;
 }

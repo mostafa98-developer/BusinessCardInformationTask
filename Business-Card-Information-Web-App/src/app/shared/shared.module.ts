@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { HeaderComponent } from './header/header.component';
 import { MatMenuModule } from '@angular/material/menu'; // Import MatMenuModule
 import { MatToolbarModule } from '@angular/material/toolbar'; // Import MatToolbarModule
+import { RouterModule } from '@angular/router';  // <-- Import RouterModule
 
 
 
@@ -35,7 +36,8 @@ import { MatToolbarModule } from '@angular/material/toolbar'; // Import MatToolb
      MatDialogModule,
      MatSnackBarModule,
      MatToolbarModule, // Add MatToolbarModule here
-     MatMenuModule
+     MatMenuModule,
+     RouterModule
   ],
   exports: [
     MatStepperModule,
@@ -52,6 +54,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'; // Import MatToolb
     MatToolbarModule, // Add MatToolbarModule here
     MatMenuModule,
     PhotoUploadComponent,
-    HeaderComponent]
+    HeaderComponent,
+    RouterModule]
 })
 export class SharedModule { }

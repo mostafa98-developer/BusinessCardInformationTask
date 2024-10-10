@@ -54,14 +54,14 @@ namespace BusinessCardInformation.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<bool> EmailExistsAsync(string email)
+        public async Task<bool> EmailExistsAsync(string email, int cardId)
         {
-            return await _dbContext.BusinessCards.AnyAsync(b => b.Email == email);
+            return await _dbContext.BusinessCards.AnyAsync(b => b.Email == email && b.Id != cardId);
         }
 
-        public async Task<bool> PhoneExistsAsync(string phone)
+        public async Task<bool> PhoneExistsAsync(string phone, int cardId)
         {
-            return await _dbContext.BusinessCards.AnyAsync(b => b.Phone == phone);
+            return await _dbContext.BusinessCards.AnyAsync(b => b.Phone == phone && b.Id != cardId);
         }
     }
 }

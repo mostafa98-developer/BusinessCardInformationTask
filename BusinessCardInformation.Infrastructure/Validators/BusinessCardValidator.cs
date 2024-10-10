@@ -26,13 +26,17 @@ namespace BusinessCardInformation.Core.Validators
                 .LessThan(DateTime.Now).WithMessage("Date of Birth must be in the past.");
 
             RuleFor(b => b.Email)
-          .NotEmpty().WithMessage("Email is required.")
-          .EmailAddress().WithMessage("Invalid email format.")
-          .MustAsync(BeUniqueEmail).WithMessage("Email already exists.");
+                 .NotEmpty().WithMessage("Email is required.")
+                 .EmailAddress().WithMessage("Invalid email format.")
+                 .MustAsync((businessCard, email, cancellationToken) =>
+                     BeUniqueEmail(businessCard.Email, businessCard.Id, cancellationToken))
+             .WithMessage("Email already exists.");
 
             RuleFor(b => b.Phone)
                 .NotEmpty().WithMessage("Phone number is required.")
-                .MustAsync(BeUniquePhone).WithMessage("Phone number already exists.");
+                .MustAsync((businessCard, phone, cancellationToken) =>
+                    BeUniquePhone(businessCard.Phone, businessCard.Id, cancellationToken))
+                .WithMessage("Phone number already exists.");
 
             RuleFor(b => b.Address)
                 .NotEmpty().WithMessage("Address is required.");
@@ -40,14 +44,14 @@ namespace BusinessCardInformation.Core.Validators
            
         }
 
-        private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
+        private async Task<bool> BeUniqueEmail(string email, int cardId, CancellationToken cancellationToken)
         {
-            return !await _repository.EmailExistsAsync(email);
+            return !await _repository.EmailExistsAsync(email, cardId);
         }
 
-        private async Task<bool> BeUniquePhone(string phone, CancellationToken cancellationToken)
+        private async Task<bool> BeUniquePhone(string phone, int cardId, CancellationToken cancellationToken)
         {
-            return !await _repository.PhoneExistsAsync(phone);
+            return !await _repository.PhoneExistsAsync(phone, cardId);
         }
     }
 }

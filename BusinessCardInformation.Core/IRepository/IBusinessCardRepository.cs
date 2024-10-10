@@ -11,7 +11,7 @@ namespace BusinessCardInformation.Core.IRepository
     public interface IBusinessCardRepository
     {
         Task<IEnumerable<BusinessCard>> GetAllAsync(BusinessCardFilter baseFilter);
-        Task<bool> EmailExistsAsync(string email);
-        Task<bool> PhoneExistsAsync(string phone);
+        Task<bool> EmailExistsAsync(string email, int cardId);
+        Task<bool> PhoneExistsAsync(string phone, int cardId);
     }
 }

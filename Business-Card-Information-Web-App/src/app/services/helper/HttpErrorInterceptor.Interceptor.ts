@@ -1,51 +1,42 @@
-// src/app/core/interceptors/http-error.interceptor.ts
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material/snack-bar';  // Import for showing user-friendly messages
-import { Router } from '@angular/router';
+import { ServiceResult } from '../../models/common/serviceResult.common';
+import { ResultCode } from '../../shared/Enums/ResultCode.enums';
+import { Error } from '../../models/common/error.common';
+import { inject } from '@angular/core'; // Import inject
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-@Injectable({providedIn: 'root'})
-export class HttpErrorInterceptor implements HttpInterceptor {
+export const httpErrorInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
+  const snackBar = inject(MatSnackBar);
 
-  constructor(private snackBar: MatSnackBar, private router: Router) {}
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      const result = new ServiceResult(ResultCode.Ok);
+      let message = 'An unknown error occurred';
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        let errorMessage = '';
-
-        // Handle different error types
-        if (error.error instanceof ErrorEvent) {
-          // Client-side error
-          errorMessage = `Client Error: ${error.error.message}`;
+      if (error.error) {
+        // Handle specific error based on error structure
+        if (typeof error.error === 'string') {
+          message = error.error; // Assume error is a string message
         } else {
-          // Server-side error
-          errorMessage = `Server Error: ${error.status} - ${error.message}`;
+          message = error.message; // Fallback to the general message
         }
+        result.addError(new Error('ServerError', message));
+      } else {
+        message = error.message; // For errors without specific payload
+        result.addError(new Error('ServerError', message));
+      }
 
-        // Show a snackbar with the error message
-        this.snackBar.open(errorMessage, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+      // Show the error message in a Snackbar
+      snackBar.open(message, 'Close', {
+        duration: 3000,
+        verticalPosition: 'top',
+        horizontalPosition: 'right',
+      });
 
-        // Handle specific status codes
-        if (error.status === 401) {
-          // Unauthorized, navigate to login page or show message
-          this.router.navigate(['/login']);
-        } else if (error.status === 404) {
-          // Not found
-          this.snackBar.open('Resource not found', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-
-        // Rethrow the error to allow further handling if needed
-        return throwError(() => new Error(errorMessage));
-      })
-    );
-  }
-}
+      return throwError(() => result);
+    })
+  );
+};

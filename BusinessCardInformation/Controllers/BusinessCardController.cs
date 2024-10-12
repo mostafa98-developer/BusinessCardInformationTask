@@ -1,3 +1,5 @@
+using BusinessCardInformation.Core.Common.Enums;
+using BusinessCardInformation.Core.Common;
 using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
@@ -25,35 +27,26 @@ namespace BusinessCardInformation.Controllers
             _validator = validator;
         }
 
-        
+
 
         [HttpPost]
         public async Task<IActionResult> CreateNewBusinessCard([FromBody] BusinessCard card)
         {
             if (card == null)
-                return BadRequest("Invalid input.");
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Invalid input.") } });
 
             var validateResult = await _validator.ValidateAsync(card);
-            if(validateResult != null) // this is just only for unittest handling error 
-            {
-                if (!validateResult.IsValid)
-                {
-                    return BadRequest(validateResult.Errors); // Return validation errors
-                }
-            }
-            
+            if (validateResult != null && !validateResult.IsValid)
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = validateResult.Errors.Select(e => new Error(e.ErrorMessage)).ToList() });
 
-            // Check if the photo exceeds the size limit (1MB)
-            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > (long)(1 * 1024 * 1024))
-                return BadRequest("Photo size exceeds 1MB.");
-
+            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Photo size exceeds 1MB.") } });
 
             var result = await _businessCardService.AddAsync(card);
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
-            return Ok(result.Data);
-
+            return Ok(result);
         }
 
         // GET: api/BusinessCard
@@ -61,87 +54,79 @@ namespace BusinessCardInformation.Controllers
         public async Task<IActionResult> GetAllBusinessCards([FromQuery] BusinessCardFilter filter)
         {
             var result = await _businessCardService.GetAllAsync(filter);
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
             return Ok(result.Data);
         }
 
-        // GET: api/BusinessCard
+        // GET: api/BusinessCard/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCardById(int id)
         {
             if (id == 0)
-                return BadRequest("Invalid input.");
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Invalid input.") } });
 
             var result = await _businessCardService.GetByIdAsync(id);
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
             return Ok(result.Data);
         }
 
 
-        // Put: api/BusinessCard
+        // PUT: api/BusinessCard
         [HttpPut]
-        public async Task<IActionResult> UpdateBusinessCards([FromBody] BusinessCard card)
+        public async Task<IActionResult> UpdateBusinessCard([FromBody] BusinessCard card)
         {
             if (card == null)
-                return BadRequest("Invalid input.");
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Invalid input.") } });
 
             var validateResult = await _validator.ValidateAsync(card);
-            if (validateResult != null) // this is just only for unittest handling error 
-            {
-                if (!validateResult.IsValid)
-                {
-                    return BadRequest(validateResult.Errors); // Return validation errors
-                }
-            }
+            if (validateResult != null && !validateResult.IsValid)
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = validateResult.Errors.Select(e => new Error(e.ErrorMessage)).ToList() });
 
-            // Check if the photo exceeds the size limit (1MB)
             if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
-                return BadRequest("Photo size exceeds 1MB.");
-
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Photo size exceeds 1MB.") } });
 
             var result = await _businessCardService.UpdateAsync(card);
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
-        // Put: api/BusinessCard
+        // DELETE: api/BusinessCard/{id}
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteBusinessCards(int id)
+        public async Task<IActionResult> DeleteBusinessCard(int id)
         {
             if (id == 0)
-                return BadRequest("Invalid input.");
+                return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Invalid input.") } });
 
-           
             var result = await _businessCardService.DeleteAsync(id);
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
+        // POST: api/BusinessCard/bulk
         [HttpPost("bulk")]
         public async Task<IActionResult> ImportBulk([FromBody] IEnumerable<BusinessCard> cards)
         {
-            var validationErrors = await  ValidateTheCards(cards);
-
+            var validationErrors = await ValidateTheCards(cards);
             if (validationErrors.Any())
             {
-                return BadRequest(new { Errors = validationErrors });
+                var serviceResult = new ServiceResult { Status = ResultCode.BadRequest };
+                serviceResult.AddErrors(validationErrors.Select(e => e.ErrorMessage).ToArray());
+                return BadRequest(serviceResult);
             }
 
             var result = await _businessCardService.AddBulkAsync(cards);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         private async Task<List<FluentValidation.Results.ValidationFailure>> ValidateTheCards(IEnumerable<BusinessCard> cards)
@@ -170,7 +155,7 @@ namespace BusinessCardInformation.Controllers
         public async Task<ServiceResult<IEnumerable<BusinessCard>>> ImportBusinessCards(IFormFile file)
         {
             List<BusinessCard> businessCards;
-            var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>("File is missing.");
+            var serviceResult = new ServiceResult<IEnumerable<BusinessCard>> { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("File is missing.") } };
 
             if (file == null || file.Length == 0)
             {
@@ -193,22 +178,22 @@ namespace BusinessCardInformation.Controllers
                 }
                 else
                 {
-                    serviceResult.ErrorMessage = "Unsupported file format.";
+                    serviceResult.Errors = new List<Error> { new Error("Unsupported file format.") };
                     return serviceResult;
                 }
             }
             serviceResult.Data = businessCards;
+            serviceResult.Status = ResultCode.Ok;
             return serviceResult;
         }
 
         [HttpGet("export/xml")]
         public async Task<IActionResult> ExportToXml()
         {
-            var result = await _businessCardService.GetAllAsync(null); // Get all business cards
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            var result = await _businessCardService.GetAllAsync(null);
+            if (!result.IsSucceed)
+                return BadRequest(result);
+
             List<BusinessCard> updatedCards = result.Data.Select(card => new BusinessCard
             {
                 Name = card.Name,
@@ -233,11 +218,9 @@ namespace BusinessCardInformation.Controllers
         [HttpGet("export/csv")]
         public async Task<IActionResult> ExportToCsv()
         {
-            var result = await _businessCardService.GetAllAsync(null); // Get all business cards
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            var result = await _businessCardService.GetAllAsync(null);
+            if (!result.IsSucceed)
+                return BadRequest(result);
 
             var csvBuilder = new StringBuilder();
             csvBuilder.AppendLine("Name,Gender,DateOfBirth,Email,Phone,Address");

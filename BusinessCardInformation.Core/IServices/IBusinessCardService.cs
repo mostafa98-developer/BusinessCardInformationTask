@@ -1,4 +1,5 @@
-﻿using BusinessCardInformation.Core.Entities;
+﻿using BusinessCardInformation.Core.Common;
+using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.Entities.FilterEntities;
 using System;
 using System.Collections.Generic;

@@ -4,6 +4,7 @@ import { BusinessCardService } from '../../services/BusinessCardService.service'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NotificationService } from '../../services/helper/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ServiceResult } from '../../models/common/serviceResult.common';
 
 @Component({
   selector: 'app-business-card-information-manage',
@@ -13,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class BusinessCardInformationManageComponent {
 
 
-  businessCardForm!: FormGroup;
+  businessCardForm: FormGroup;
   businessCard: BusinessCard = new BusinessCard();
   personalPhotoBase64: string | null = null
   id: any;
@@ -33,10 +34,18 @@ export class BusinessCardInformationManageComponent {
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.id = params['id']
-        this.businessCardService.getCardById(params['id']).subscribe(data => {
-
-          this.businessCardForm.patchValue(data);
-        })
+        this.businessCardService.getCardById(this.id ).subscribe({
+          next: (result: ServiceResult<BusinessCard>) => {
+            if (!result.hasErrors && result.data) {
+              this.businessCardForm.patchValue(result.data);
+            } else {
+              this.notificationService.showError('Failed to load business card.');
+            }
+          },
+          error: () => {
+            this.notificationService.showError('Error occurred while fetching the business card.');
+          },
+        });
       }
     });
   }
@@ -62,11 +71,11 @@ export class BusinessCardInformationManageComponent {
 
   private add() {
     this.businessCardService.createBusinessCard(this.businessCard).subscribe(response => {
-      if (response) {
+      if (!response.hasErrors) {
         this.notificationService.showSuccess('Saved successfully!');
         this.router.navigateByUrl('pages/business-bard-information-list');
       } else {
-        this.notificationService.showSuccess('Saved successfully!');
+        this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
       }
     });
   }
@@ -74,11 +83,11 @@ export class BusinessCardInformationManageComponent {
   private update() {
     this.businessCard.id = this.id;
     this.businessCardService.updateBusinessCard(this.businessCard).subscribe(response => {
-      if (response) {
+      if (!response.hasErrors) {
         this.notificationService.showSuccess('Saved successfully!');
         this.router.navigateByUrl('pages/business-bard-information-list');
       } else {
-        this.notificationService.showSuccess('Saved successfully!');
+        this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
       }
     });
   }

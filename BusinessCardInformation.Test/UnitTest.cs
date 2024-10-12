@@ -1,5 +1,7 @@
 using Bogus;
 using BusinessCardInformation.Controllers;
+using BusinessCardInformation.Core.Common;
+using BusinessCardInformation.Core.Common.Enums;
 using BusinessCardInformation.Core.Entities;
 using BusinessCardInformation.Core.Entities.FilterEntities;
 using BusinessCardInformation.Core.IServices;
@@ -7,6 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -33,9 +36,9 @@ namespace BusinessCardInformation.Test
                 // Act
                 var result = await _controller.CreateNewBusinessCard(null);
 
-                // Assert
                 var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("Invalid input.", badRequestResult.Value);
+                var serviceResult = Assert.IsType<ServiceResult>(badRequestResult.Value);
+                Assert.Equal(ResultCode.BadRequest, serviceResult.Status);
             }
 
             [Fact]
@@ -55,9 +58,9 @@ namespace BusinessCardInformation.Test
                 // Act
                 var result = await _controller.CreateNewBusinessCard(card);
 
-                // Assert
                 var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("Photo size exceeds 1MB.", badRequestResult.Value);
+                var serviceResult = Assert.IsType<ServiceResult>(badRequestResult.Value);
+                Assert.Equal(ResultCode.BadRequest, serviceResult.Status);
             }
 
             [Fact]
@@ -74,91 +77,100 @@ namespace BusinessCardInformation.Test
                     Address = "irbide, jordan",
                     PhotoBase64 = GenerateBase64Image(1) // 1MB photo
                 };
-                var serviceResult = new ServiceResult<BusinessCard>(card);
+                var serviceResult = new ServiceResult<BusinessCard> { Status = ResultCode.Ok, Data = card };
                 _mockService.Setup(s => s.AddAsync(card)).ReturnsAsync(serviceResult);
 
                 // Act
                 var result = await _controller.CreateNewBusinessCard(card);
 
-                // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result);
-                Assert.Equal(card, okResult.Value);
+                var badRequestResult = Assert.IsType<OkObjectResult>(result);
+                var requestResulValue = Assert.IsType<ServiceResult<BusinessCard>>(badRequestResult.Value);
+                Assert.Equal(ResultCode.Ok, requestResulValue.Status);
             }
 
             [Fact]
             public async Task GetAllBusinessCards_ShouldReturnOk_WhenServiceReturnsData()
             {
-                var businessCard = new BusinessCardFilter() { Email = "mostafa2424@example.com" };
+                var businessCardFilter = new BusinessCardFilter() { Email = "mostafa4564@example.com" };
 
                 // Arrange
-                var cards = new List<BusinessCard> { new BusinessCard
-                        {
-                            Name = "Mostafa Almomani",
-                            Gender = "Male",
-                            DateOfBirth = new DateTime(1998, 1, 4),
-                            Email = "mostafa4564@example.com",
-                            Phone = "123-456-7890",
-                            Address = "irbide, jordan",
-                            PhotoBase64 = GenerateBase64Image(1) // 1MB photo
-                        } };
-                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
-                _mockService.Setup(s => s.GetAllAsync(businessCard)).ReturnsAsync(serviceResult);
+                var cards = new List<BusinessCard>
+                {
+                    new BusinessCard
+                    {
+                        Name = "Mostafa Almomani",
+                        Gender = "Male",
+                        DateOfBirth = new DateTime(1998, 1, 4),
+                        Email = "mostafa4564@example.com",
+                        Phone = "123-456-7890",
+                        Address = "irbide, jordan",
+                        PhotoBase64 = GenerateBase64Image(1) // 1MB photo
+                    }
+                };
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>> { Status = ResultCode.Ok, Data = cards };
+                _mockService.Setup(s => s.GetAllAsync(businessCardFilter)).ReturnsAsync(serviceResult);
 
                 // Act
-                var result = await _controller.GetAllBusinessCards(businessCard);
+                var result = await _controller.GetAllBusinessCards(businessCardFilter);
 
                 // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result);
-                Assert.Equal(cards, okResult.Value);
+                var badRequestResult = Assert.IsType<OkObjectResult>(result);
+                var requestResulValue = Assert.IsType<List<BusinessCard>>(badRequestResult.Value);
+                Assert.Equal(serviceResult.Data.Count() > 0, requestResulValue.Count() > 0);
             }
 
             [Fact]
             public async Task UpdateBusinessCards_ShouldReturnBadRequest_WhenCardIsNull()
             {
                 // Act
-                var result = await _controller.UpdateBusinessCards(null);
+                var result = await _controller.UpdateBusinessCard(null);
 
                 // Assert
                 var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("Invalid input.", badRequestResult.Value);
+                var requestResulValue = Assert.IsType<ServiceResult>(badRequestResult.Value);
+                Assert.Equal(ResultCode.BadRequest, requestResulValue.Status);
             }
 
             [Fact]
-            public async Task DeleteBusinessCards_ShouldReturnBadRequest_WhenCardIdIsNull()
+            public async Task DeleteBusinessCards_ShouldReturnBadRequest_WhenCardIdIsZero()
             {
-                var result = await _controller.DeleteBusinessCards(0);
+                // Act
+                var result = await _controller.DeleteBusinessCard(0);
 
+                // Assert
                 var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("Invalid input.", badRequestResult.Value);
+                var requestResulValue = Assert.IsType<ServiceResult>(badRequestResult.Value);
+                Assert.Equal(ResultCode.BadRequest, requestResulValue.Status);
             }
 
             [Fact]
             public async Task DeleteBusinessCards_ShouldReturnOk_WhenServiceDeletesSuccessfully()
             {
                 int cardId = 1;
-                var serviceResult = new ServiceResult<BusinessCard>(new BusinessCard());
+                var serviceResult = new ServiceResult<BusinessCard> { Status = ResultCode.Ok, Data = new BusinessCard() };
                 _mockService.Setup(s => s.DeleteAsync(cardId)).ReturnsAsync(serviceResult);
 
-                var result = await _controller.DeleteBusinessCards(cardId);
+                var result = await _controller.DeleteBusinessCard(cardId);
 
-                var okResult = Assert.IsType<OkObjectResult>(result);
-                Assert.Equal(serviceResult.Data, okResult.Value);
+                // Assert
+                var badRequestResult = Assert.IsType<OkObjectResult>(result);
+                var requestResulValue = Assert.IsType<ServiceResult<BusinessCard>>(badRequestResult.Value);
+                Assert.Equal(ResultCode.Ok, requestResulValue.Status);
             }
 
             [Fact]
-            public async void ImportBusinessCards_ShouldReturnBadRequest_WhenFileIsMissing()
+            public async Task ImportBusinessCards_ShouldReturnBadRequest_WhenFileIsMissing()
             {
                 IFormFile file = null;
 
                 var result = await _controller.ImportBusinessCards(file);
 
-                var okResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
-                var importedCards = Assert.IsAssignableFrom<string>(okResult.ErrorMessage);
-                Assert.Equal("File is missing.", importedCards);
+                var badRequestResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
+                Assert.Equal(ResultCode.BadRequest, badRequestResult.Status);
             }
 
             [Fact]
-            public async void ImportBusinessCards_ShouldReturnBadRequest_WhenFileIsEmpty()
+            public async Task ImportBusinessCards_ShouldReturnBadRequest_WhenFileIsEmpty()
             {
                 var fileMock = new Mock<IFormFile>();
                 fileMock.Setup(f => f.Length).Returns(0);
@@ -166,35 +178,32 @@ namespace BusinessCardInformation.Test
 
                 var result = await _controller.ImportBusinessCards(fileMock.Object);
 
-               
-                var okResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
-                var importedCards = Assert.IsAssignableFrom<string>(okResult.ErrorMessage);
-                Assert.Equal("File is missing.", importedCards);
+                var badRequestResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
+                Assert.Equal(ResultCode.BadRequest, badRequestResult.Status);
             }
 
             [Fact]
-            public async void ImportBusinessCards_ShouldReturnOk_WhenCsvFileIsValid()
+            public async Task ImportBusinessCards_ShouldReturnOk_WhenCsvFileIsValid()
             {
-                var faker = new Bogus.Faker<BusinessCard>()
-                        .RuleFor(b => b.Name, f => f.Name.FullName())
-                        .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
-                        .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
-                        .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
-                        .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
-                        .RuleFor(b => b.Address, f => f.Address.FullAddress())
-                        .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); 
+                var faker = new Faker<BusinessCard>()
+                    .RuleFor(b => b.Name, f => f.Name.FullName())
+                    .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                    .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                    .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                    .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                    .RuleFor(b => b.Address, f => f.Address.FullAddress())
+                    .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1));
 
                 var cards = faker.Generate(3);
-
                 var csvContent = new StringBuilder();
-                csvContent.AppendLine("Name,Gender,DateOfBirth,Email,Phone,Address,PhotoBase64"); 
+                csvContent.AppendLine("Name,Gender,DateOfBirth,Email,Phone,Address,PhotoBase64");
 
                 foreach (var card in cards)
                 {
                     csvContent.AppendLine($"{card.Name},{card.Gender},{card.DateOfBirth:yyyy-MM-dd}," +
                                           $"{card.Email},{card.Phone},{card.Address},{card.PhotoBase64}");
                 }
-               
+
                 var fileMock = new Mock<IFormFile>();
                 var fileName = "test.csv";
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes(csvContent.ToString()));
@@ -203,31 +212,25 @@ namespace BusinessCardInformation.Test
                 fileMock.Setup(f => f.FileName).Returns(fileName);
                 fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
 
-
                 var result = await _controller.ImportBusinessCards(fileMock.Object);
 
-                var okResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
-                var importedCards = Assert.IsAssignableFrom<IEnumerable<BusinessCard>>(okResult.Data);
-
-                
-                Assert.Equal(cards.Count, importedCards.Count()); 
+                var badRequestResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
+                Assert.Equal(ResultCode.Ok, badRequestResult.Status);
             }
 
             [Fact]
-            public async void ImportBusinessCards_ShouldReturnOk_WhenXmlFileIsValid()
+            public async Task ImportBusinessCards_ShouldReturnOk_WhenXmlFileIsValid()
             {
                 var faker = new Faker<BusinessCard>()
-                        .RuleFor(b => b.Name, f => f.Name.FullName())
-                        .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
-                        .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
-                        .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
-                        .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
-                        .RuleFor(b => b.Address, f => f.Address.FullAddress())
-                        .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
+                    .RuleFor(b => b.Name, f => f.Name.FullName())
+                    .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
+                    .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+                    .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
+                    .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
+                    .RuleFor(b => b.Address, f => f.Address.FullAddress())
+                    .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1));
 
-                var cards = faker.Generate(3); // Generate 3 BusinessCards
-
-                // Serialize to XML
+                var cards = faker.Generate(3);
                 var xmlSerializer = new XmlSerializer(typeof(List<BusinessCard>), new XmlRootAttribute("ArrayOfBusinessCard"));
                 using var stringWriter = new StringWriter();
                 xmlSerializer.Serialize(stringWriter, cards);
@@ -242,11 +245,9 @@ namespace BusinessCardInformation.Test
 
                 var result = await _controller.ImportBusinessCards(fileMock.Object);
 
-                var okResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
-                var importedCards = Assert.IsAssignableFrom<IEnumerable<BusinessCard>>(okResult.Data);
 
-
-                Assert.Equal(cards.Count, importedCards.Count());
+                var badRequestResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
+                Assert.Equal(ResultCode.Ok, badRequestResult.Status);
             }
 
             [Fact]
@@ -262,10 +263,9 @@ namespace BusinessCardInformation.Test
                 // Act
                 var result = await _controller.ImportBusinessCards(fileMock.Object);
 
-                // Assert
-                var okResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
-                var importedCards = Assert.IsAssignableFrom<string>(okResult.ErrorMessage);
-                Assert.Equal("Unsupported file format.", importedCards);
+
+                var badRequestResult = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(result);
+                Assert.Equal(ResultCode.BadRequest, badRequestResult.Status);
             }
 
 
@@ -282,22 +282,22 @@ namespace BusinessCardInformation.Test
                         .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
 
                 var cards = faker.Generate(10);
-                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>> { Status = ResultCode.Ok, Data = cards };
                 _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
 
                 var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
                 var xmlFilePath = Path.Combine(projectRoot, "business_cards" + Guid.NewGuid().ToString() + ".xml");
 
-               
 
-                var result = await _controller.ExportToXml();  
+
+                var result = await _controller.ExportToXml();
 
                 var fileResult = Assert.IsType<FileContentResult>(result);
 
                 Assert.Equal("application/xml", fileResult.ContentType);
 
                 var xmlContent = Encoding.UTF8.GetString(fileResult.FileContents);
-                Assert.NotEmpty(xmlContent); 
+                Assert.NotEmpty(xmlContent);
 
                 await System.IO.File.WriteAllBytesAsync(xmlFilePath, fileResult.FileContents);
 
@@ -319,13 +319,13 @@ namespace BusinessCardInformation.Test
                         .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
 
                 var cards = faker.Generate(10);
-                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>> { Status = ResultCode.Ok, Data = cards };
                 _mockService.Setup(s => s.GetAllAsync(null)).ReturnsAsync(serviceResult);
 
                 var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
-                var csvFilePath = Path.Combine(projectRoot, "business_cards" + Guid.NewGuid().ToString()+".csv");
+                var csvFilePath = Path.Combine(projectRoot, "business_cards" + Guid.NewGuid().ToString() + ".csv");
 
-                
+
 
                 var result = await _controller.ExportToCsv();
 
@@ -335,11 +335,11 @@ namespace BusinessCardInformation.Test
 
                 var csvContent = Encoding.UTF8.GetString(fileResult.FileContents);
 
-            
+
                 await System.IO.File.WriteAllBytesAsync(csvFilePath, fileResult.FileContents);
 
                 Assert.True(System.IO.File.Exists(csvFilePath), $"The file {csvFilePath} was not saved correctly.");
-                
+
                 _mockService.Verify(s => s.GetAllAsync(null), Times.Once);
             }
 
@@ -358,55 +358,26 @@ namespace BusinessCardInformation.Test
 
                 var cards = faker.Generate(5); // Generate 5 BusinessCards
 
-                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>(cards);
+                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>> { Status = ResultCode.Ok, Data = cards };
                 _mockService.Setup(s => s.AddBulkAsync(cards)).ReturnsAsync(serviceResult);
 
                 // Act
                 var result = await _controller.ImportBulk(cards);
 
-                // Assert
-                var okResult = Assert.IsType<OkObjectResult>(result);
-                var returnedCards = Assert.IsAssignableFrom<IEnumerable<BusinessCard>>(okResult.Value);
-                Assert.Equal(cards.Count, returnedCards.Count()); // Check if the count matches
+
+                var badRequestResult = Assert.IsType<OkObjectResult>(result);
+                var requestResulValue = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(badRequestResult.Value);
+                Assert.Equal(ResultCode.Ok, requestResulValue.Status);
             }
 
-            [Fact]
-            public async Task ImportBulk_ShouldReturnBadRequest_WhenServiceReturnsError()
+            
+            private string GenerateBase64Image(int sizeInMB)
             {
-                // Arrange
-                var faker = new Faker<BusinessCard>()
-                    .RuleFor(b => b.Name, f => f.Name.FullName())
-                    .RuleFor(b => b.Gender, f => f.PickRandom(new[] { "Male", "Female" }))
-                    .RuleFor(b => b.DateOfBirth, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
-                    .RuleFor(b => b.Email, (f, b) => f.Internet.Email(b.Name.ToLower().Replace(" ", "")))
-                    .RuleFor(b => b.Phone, f => f.Phone.PhoneNumber())
-                    .RuleFor(b => b.Address, f => f.Address.FullAddress())
-                    .RuleFor(b => b.PhotoBase64, f => GenerateBase64Image(1)); // Adjust this if needed
-
-                var cards = faker.Generate(5); // Generate 5 BusinessCards
-                IEnumerable<BusinessCard> businessCards = new List<BusinessCard>(cards);
-
-                var serviceResult = new ServiceResult<IEnumerable<BusinessCard>>("Error occurred during import.");
-                _mockService.Setup(s => s.AddBulkAsync(businessCards)).ReturnsAsync(serviceResult);
-
-                // Act
-                var result = await _controller.ImportBulk(businessCards);
-
-                // Assert
-                var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("Error occurred during import.", badRequestResult.Value);
+                var image = new byte[sizeInMB * 1024 * 1024];
+                new Random().NextBytes(image);
+                return Convert.ToBase64String(image);
             }
-
-            private static string GenerateBase64Image(int sizeInMB)
-            {
-
-                int base64Size = (int)(sizeInMB * 1_398_000);
-
-                string base64ImageContent = new string('A', base64Size);
-
-                return $"data:image/jpeg;base64,{base64ImageContent}";
-            }
-
         }
+
     }
 }

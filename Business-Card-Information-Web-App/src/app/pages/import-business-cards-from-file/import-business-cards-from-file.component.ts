@@ -3,7 +3,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { BusinessCard } from '../../models/business-card.model';
 import { BusinessCardService } from '../../services/BusinessCardService.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import { error } from 'console';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -34,33 +33,23 @@ export class ImportBusinessCardsFromFileComponent {
       return;
     }
 
-    this.businessCardService.importBusinessCards(this.selectedFile).subscribe({
-      next: (response) => {
-        if (response.data) {
-        this.dataSource.data = response.data; // Update data source with imported data
-        this.selectedFile = null; // Reset the file input
+    this.businessCardService.importBusinessCards(this.selectedFile).subscribe((result) => {
+      if(!result.hasErrors && result.data) {
+        this.dataSource.data = [...result.data];
       } else {
-        this.importError = response.errorMessage || 'Import failed.';
-      }},
-      error: (err) => {
-        this.importError = 'An error occurred while importing: ' + err.message;
+        this.importError = result.errors.map(e => e.extraMessage + "\n").toString();
       }
-    })
+    });
+
   }
 
   save() {
     this.businessCardService.importBulk(this.dataSource.data).subscribe(result => {
-      console.log(result)
-      if(result){
+      if(result.isSucceed){
         this.dialogRef.close();
+      } else {
+        this.importError = result.errors.map(e => e.extraMessage + "\n").toString();
       }
-    }, error => {
-      // console.log(error)
-      // if()
-      // this.snackBar.open('An error occurred while saving', 'Close', {
-      //   duration: 5000,
-      //   panelClass: ['error-snackbar']
-      // });
     })
 
   }

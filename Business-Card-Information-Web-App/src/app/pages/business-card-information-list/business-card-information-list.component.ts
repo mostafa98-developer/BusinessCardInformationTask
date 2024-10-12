@@ -21,6 +21,8 @@ export class BusinessCardInformationListComponent {
   genderOptions = ['Male', 'Female'];
   dataSource = new MatTableDataSource<BusinessCard>([]);
 
+  BusinessCards: BusinessCard[] = [];
+
   constructor(private snackBar: MatSnackBar,
     private businessCardService: BusinessCardService,
     private dialog: MatDialog,
@@ -59,8 +61,13 @@ export class BusinessCardInformationListComponent {
 
 
   getAllCards() {
-    this.businessCardService.getAllBusinessCards(this.filter).subscribe(cards => {
-      this.dataSource.data = [...cards];
+    this.businessCardService.getAllBusinessCards(this.filter).subscribe(result => {
+      if(!result.hasErrors && result.data) {
+        this.dataSource.data = [...result.data];
+      } else {
+        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
+      }
+
     });
   }
 
@@ -73,9 +80,11 @@ export class BusinessCardInformationListComponent {
       .subscribe(result => {
         if (result) {
           this.businessCardService.deleteBusinessCard(cardId).subscribe(response => {
-            if(response){
+            if(!response.hasErrors){
               this.notificationService.showSuccess('Card deleted successfully!');
               this.loadBusinessCards()
+            } else {
+              this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
             }
           });
         } else {
@@ -87,18 +96,22 @@ export class BusinessCardInformationListComponent {
   }
 
   exportToXml() {
-    this.businessCardService.exportToXml().subscribe(blob => {
-      this.downloadFile(blob, 'business_cards.xml'); // Specify the filename
-    }, error => {
-      console.error('Error exporting to XML:', error);
+    this.businessCardService.exportToXml().subscribe(result => {
+      if(!result.hasErrors && result.data) {
+        this.downloadFile(result.data, 'business_cards.xml'); // Specify the filename
+      } else {
+        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
+      }
     });
   }
 
   exportToCsv() {
-    this.businessCardService.exportToCsv().subscribe(blob => {
-      this.downloadFile(blob, 'business_cards.csv'); // Specify the filename
-    }, error => {
-      console.error('Error exporting to CSV:', error);
+    this.businessCardService.exportToCsv().subscribe(result => {
+      if(!result.hasErrors && result.data) {
+        this.downloadFile(result.data, 'business_cards.csv'); // Specify the filename
+      } else {
+        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
+      }
     });
   }
 

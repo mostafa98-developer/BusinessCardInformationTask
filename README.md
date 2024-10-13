@@ -8,10 +8,8 @@ This is a .NET Core API built with ASP.NET Core 8 and Entity Framework Core. The
 
 - **RESTful API**: Follows REST principles for resource management.
 - **Entity Framework Core**: Uses EF Core for data access and manipulation.
-- **Database Support**: [Specify your database, e.g., SQL Server, SQLite, PostgreSQL, etc.]
-- **Authentication**: [If applicable, describe the authentication method used, e.g., JWT, OAuth, etc.]
+- **Database Support**:  SQL Server
 - **Error Handling**: Proper error handling and responses.
-- **Documentation**: [If using Swagger or similar, mention it here.]
 
 ## Prerequisites
 

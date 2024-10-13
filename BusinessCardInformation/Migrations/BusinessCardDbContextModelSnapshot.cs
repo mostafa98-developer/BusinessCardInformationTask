@@ -57,7 +57,6 @@ namespace BusinessCardInformation.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhotoBase64")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedDate")

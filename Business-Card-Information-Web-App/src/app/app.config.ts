@@ -6,13 +6,16 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpErrorInterceptor } from './services/helper/HttpErrorInterceptor.Interceptor';
+import { InterceptorService } from './shared/loader/interceptor.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }),
   provideRouter(routes),
   provideClientHydration(),
   provideAnimationsAsync(),
-  provideHttpClient(withInterceptors([httpErrorInterceptor])),
+  provideHttpClient(withInterceptors([httpErrorInterceptor,InterceptorService])),
   provideAnimationsAsync() ],
 
 };
+
+

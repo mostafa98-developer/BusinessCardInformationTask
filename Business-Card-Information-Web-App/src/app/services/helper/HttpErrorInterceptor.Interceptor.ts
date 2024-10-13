@@ -17,23 +17,31 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, n
       let message = 'An unknown error occurred';
 
       if (error.error) {
+        if(error.error.message){
+          message = error.error.message;
+        }
         // Handle specific error based on error structure
         if (typeof error.error === 'string') {
           message = error.error; // Assume error is a string message
         } else {
-          message = error.message; // Fallback to the general message
+          if (error.error?.errors?.length > 0){
+            message = '';
+            error.error.errors.forEach((errorItem: any) => { message +=errorItem.code + '\n'});
+          }
         }
         result.addError(new Error('ServerError', message));
-      } else {
+      }  else {
         message = error.message; // For errors without specific payload
         result.addError(new Error('ServerError', message));
       }
 
+
       // Show the error message in a Snackbar
       snackBar.open(message, 'Close', {
-        duration: 3000,
+        duration: 10000,
         verticalPosition: 'top',
         horizontalPosition: 'right',
+        panelClass: ['snack-bar-error']
       });
 
       return throwError(() => result);

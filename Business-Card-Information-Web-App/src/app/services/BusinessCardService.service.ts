@@ -19,54 +19,64 @@ export class BusinessCardService {
   constructor(private http: HttpClient) {}
 
   createBusinessCard(card: BusinessCard): Observable<ServiceResult<BusinessCard>> {
-    return this.http.post<BusinessCard>(this.apiUrl, card).pipe(
-      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response)),
+    return this.http.post<ServiceResult<BusinessCard>>(this.apiUrl, card).pipe(
+      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard>(error))
     );
   }
 
   getAllBusinessCards(filter?: BusinessCardFilter): Observable<ServiceResult<BusinessCard[]>> {
     const params = toHttpParams(filter); // Use the dynamic converter
-    return this.http.get<BusinessCard[]>(this.apiUrl, { params }).pipe(
-      map((response) => new ServiceResult<BusinessCard[]>(ResultCode.Ok, response)),
+    return this.http.get<ServiceResult<BusinessCard[]>>(this.apiUrl, { params }).pipe(
+      map((response) => new ServiceResult<BusinessCard[]>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard[]>(error))
     );
   }
 
   getCardById(cardId: number): Observable<ServiceResult<BusinessCard>> {
-    return this.http.get<BusinessCard>(`${this.apiUrl}/${cardId}`).pipe(
-      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response)),
+    return this.http.get<ServiceResult<BusinessCard>>(`${this.apiUrl}/${cardId}`).pipe(
+      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard>(error))
     );
   }
 
   updateBusinessCard(card: BusinessCard): Observable<ServiceResult<BusinessCard>> {
-    return this.http.put<BusinessCard>(this.apiUrl, card).pipe(
-      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response)),
+    return this.http.put<ServiceResult<BusinessCard>>(this.apiUrl, card).pipe(
+      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard>(error))
     );
   }
 
   deleteBusinessCard(cardId: number): Observable<ServiceResult<BusinessCard>> {
-    return this.http.delete<BusinessCard>(`${this.apiUrl}/${cardId}`).pipe(
-      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response)),
+    return this.http.delete<ServiceResult<BusinessCard>>(`${this.apiUrl}/${cardId}`).pipe(
+      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard>(error))
     );
   }
 
   importBulk(cards: BusinessCard[]): Observable<ServiceResult<BusinessCard[]>> {
-    return this.http.post<BusinessCard[]>(`${this.apiUrl}/bulk`, cards).pipe(
-      map((response) => new ServiceResult<BusinessCard[]>(ResultCode.Ok, response)),
+    return this.http.post<ServiceResult<BusinessCard[]>>(`${this.apiUrl}/bulk`, cards).pipe(
+      map((response) => new ServiceResult<BusinessCard[]>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<BusinessCard[]>(error))
     );
   }
 
-  importBusinessCards(file: File): Observable<ServiceResult<any>> {
+  importBusinessCards(file: File): Observable<ServiceResult<BusinessCard[]>> {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    return this.http.post<any>(`${this.apiUrl}/import`, formData).pipe(
-      map((response) => new ServiceResult<any>(ResultCode.Ok, response)),
+    return this.http.post<ServiceResult<BusinessCard[]>>(`${this.apiUrl}/import`, formData).pipe(
+      map((response) => new ServiceResult<BusinessCard[]>(ResultCode.Ok, response.data)),
+      catchError((error) => this.handleError<any>(error))
+    );
+  }
+
+  QRCodeReader(file: File): Observable<ServiceResult<BusinessCard>> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<ServiceResult<BusinessCard>>(`${this.apiUrl}/QRCodeReader`, formData).pipe(
+      map((response) => new ServiceResult<BusinessCard>(ResultCode.Ok, response.data)),
       catchError((error) => this.handleError<any>(error))
     );
   }

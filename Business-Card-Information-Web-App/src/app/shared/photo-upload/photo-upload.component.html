@@ -4,8 +4,8 @@
     Upload your photo
   </label>
 
-  <div class="preview-container" *ngIf="photoBase64">
-    <img [src]="photoBase64" alt="Uploaded Photo" class="photo-preview" />
+  <div class="preview-container" *ngIf="photoBase64Input">
+    <img [src]="photoBase64Input" alt="Uploaded Photo" class="photo-preview" />
   </div>
 
   <mat-error *ngIf="fileError">{{ fileError }}</mat-error>

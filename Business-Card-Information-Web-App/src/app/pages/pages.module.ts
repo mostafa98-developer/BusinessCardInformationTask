@@ -19,12 +19,14 @@ import { ImportBusinessCardsFromFileComponent } from './import-business-cards-fr
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // Import Material Snackbar
 import { SharedModule } from '../shared/shared.module';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
     BusinessCardInformationManageComponent,
     BusinessCardInformationListComponent,
-    ImportBusinessCardsFromFileComponent
+    ImportBusinessCardsFromFileComponent,
+    PageNotFoundComponent
   ],
   imports: [
     CommonModule,

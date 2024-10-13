@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text;
 using System.Xml.Serialization;
+using BusinessCardInformation.Common.Utilities;
 
 namespace BusinessCardInformation.Controllers
 {
@@ -39,7 +40,7 @@ namespace BusinessCardInformation.Controllers
             if (validateResult != null && !validateResult.IsValid)
                 return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = validateResult.Errors.Select(e => new Error(e.ErrorMessage)).ToList() });
 
-            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+            if (!string.IsNullOrEmpty(card.PhotoBase64) && FileManager.GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
                 return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Photo size exceeds 1MB.") } });
 
             var result = await _businessCardService.AddAsync(card);
@@ -57,7 +58,7 @@ namespace BusinessCardInformation.Controllers
             if (!result.IsSucceed)
                 return BadRequest(result);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         // GET: api/BusinessCard/{id}
@@ -71,7 +72,7 @@ namespace BusinessCardInformation.Controllers
             if (!result.IsSucceed)
                 return BadRequest(result);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
 
@@ -86,7 +87,7 @@ namespace BusinessCardInformation.Controllers
             if (validateResult != null && !validateResult.IsValid)
                 return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = validateResult.Errors.Select(e => new Error(e.ErrorMessage)).ToList() });
 
-            if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
+            if (!string.IsNullOrEmpty(card.PhotoBase64) && FileManager.GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
                 return BadRequest(new ServiceResult { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("Photo size exceeds 1MB.") } });
 
             var result = await _businessCardService.UpdateAsync(card);
@@ -170,11 +171,11 @@ namespace BusinessCardInformation.Controllers
             {
                 if (fileExtension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
                 {
-                    businessCards = ReadCsv(stream);
+                    businessCards = FileManager.ReadCsv(stream);
                 }
                 else if (fileExtension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
                 {
-                    businessCards = ReadXml(stream);
+                    businessCards = FileManager.ReadXml(stream);
                 }
                 else
                 {
@@ -234,69 +235,26 @@ namespace BusinessCardInformation.Controllers
             return File(csvResult, "text/csv", "business_cards.csv");
         }
 
-        private List<BusinessCard> ReadCsv(StreamReader stream)
+        [HttpPost("QRCodeReader")]
+        public async Task<ServiceResult<BusinessCard>> QRCodeReader([FromForm] IFormFile file)
         {
-            var cards = new List<BusinessCard>();
+            var serviceResult = new ServiceResult<BusinessCard> { Status = ResultCode.BadRequest, Errors = new List<Error> { new Error("File is missing.") } };
 
-            // Assuming first row contains headers and skipping it
-            stream.ReadLine();
-
-            while (!stream.EndOfStream)
+            if (file == null || file.Length == 0)
             {
-                var line = stream.ReadLine();
-                var values = line.Split(',');
-
-                var card = new BusinessCard
-                {
-                    Name = values[0],
-                    Gender = values[1],
-                    DateOfBirth = DateTime.Parse(values[2]),
-                    Email = values[3],
-                    Phone = values[4],
-                    Address = values[5],
-                    PhotoBase64 = values[6] // Optional, base64 encoded photo
-                };
-
-                // Validate photo size if present
-                if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > 1 * 1024 * 1024)
-                    throw new InvalidOperationException($"Photo size for {card.Name} exceeds 1MB.");
-
-                cards.Add(card);
+                return serviceResult;
             }
+           
+            var businessCard = await FileManager.ReadQRCodeFromFileAsync(file);
 
-            return cards;
-        }
-
-        private List<BusinessCard> ReadXml(StreamReader stream)
-        {
-            var serializer = new XmlSerializer(typeof(List<BusinessCard>));
-            var cards = (List<BusinessCard>)serializer.Deserialize(stream);
-
-            // Validate photo size for each card
-            foreach (var card in cards)
-            {
-                if (!string.IsNullOrEmpty(card.PhotoBase64) && GetBase64Size(card.PhotoBase64) > (1 * 1024 * 1024))
-                    throw new InvalidOperationException($"Photo size for {card.Name} exceeds 1MB.");
+            if (businessCard == null) {
+                serviceResult.Errors = (new List<Error> { new Error("File has error.") });
+                return serviceResult;
             }
+            serviceResult.Data = businessCard;
+            serviceResult.Status = ResultCode.Ok;
+            return serviceResult;
 
-            return cards;
-        }
-
-
-        // Helper function to calculate the size of the base64 string
-        private long GetBase64Size(string base64String)
-        {
-            // The base64 string may contain a prefix like "data:image/jpeg;base64,"
-            int prefixLength = base64String.IndexOf(',') + 1;
-            string base64 = base64String.Substring(prefixLength);
-
-            // Calculate the padding (Base64 strings use '=' for padding)
-            int padding = 0;
-            if (base64.EndsWith("==")) padding = 2;
-            else if (base64.EndsWith("=")) padding = 1;
-
-            // Base64-encoded string size (in bytes)
-            return (base64.Length * 3 / 4) - padding;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

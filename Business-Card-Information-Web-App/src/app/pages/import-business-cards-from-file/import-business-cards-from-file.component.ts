@@ -33,13 +33,20 @@ export class ImportBusinessCardsFromFileComponent {
       return;
     }
 
-    this.businessCardService.importBusinessCards(this.selectedFile).subscribe((result) => {
-      if(!result.hasErrors && result.data) {
-        this.dataSource.data = [...result.data];
-      } else {
-        this.importError = result.errors.map(e => e.extraMessage + "\n").toString();
-      }
-    });
+    if(['text/csv','text/xml'].includes(this.selectedFile.type) ){
+      this.businessCardService.importBusinessCards(this.selectedFile).subscribe((result) => {
+        if(!result.hasErrors && result.data) {
+          this.dataSource.data = [...result.data];
+        }
+      });
+    } else {
+      this.businessCardService.QRCodeReader(this.selectedFile).subscribe((result) => {
+        if(!result.hasErrors && result.data) {
+          this.dataSource.data = [result.data];
+        }
+      });
+    }
+
 
   }
 
@@ -47,8 +54,6 @@ export class ImportBusinessCardsFromFileComponent {
     this.businessCardService.importBulk(this.dataSource.data).subscribe(result => {
       if(result.isSucceed){
         this.dialogRef.close();
-      } else {
-        this.importError = result.errors.map(e => e.extraMessage + "\n").toString();
       }
     })
 

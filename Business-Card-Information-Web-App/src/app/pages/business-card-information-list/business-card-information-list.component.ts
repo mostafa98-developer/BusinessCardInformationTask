@@ -8,6 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/helper/notification.service';
+import { FileService } from '../../services/helper/FileService.service';
 
 @Component({
   selector: 'app-business-card-information-list',
@@ -27,7 +28,8 @@ export class BusinessCardInformationListComponent {
     private businessCardService: BusinessCardService,
     private dialog: MatDialog,
     private router: Router,
-    private notificationService: NotificationService) {}
+    private notificationService: NotificationService,
+    private fileServic: FileService) {}
 
 
   ngOnInit(): void {
@@ -64,8 +66,6 @@ export class BusinessCardInformationListComponent {
     this.businessCardService.getAllBusinessCards(this.filter).subscribe(result => {
       if(!result.hasErrors && result.data) {
         this.dataSource.data = [...result.data];
-      } else {
-        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
       }
 
     });
@@ -83,8 +83,6 @@ export class BusinessCardInformationListComponent {
             if(!response.hasErrors){
               this.notificationService.showSuccess('Card deleted successfully!');
               this.loadBusinessCards()
-            } else {
-              this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
             }
           });
         } else {
@@ -98,9 +96,7 @@ export class BusinessCardInformationListComponent {
   exportToXml() {
     this.businessCardService.exportToXml().subscribe(result => {
       if(!result.hasErrors && result.data) {
-        this.downloadFile(result.data, 'business_cards.xml'); // Specify the filename
-      } else {
-        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
+        this.fileServic.downloadFile(result.data, 'business_cards.xml'); // Specify the filename
       }
     });
   }
@@ -108,21 +104,10 @@ export class BusinessCardInformationListComponent {
   exportToCsv() {
     this.businessCardService.exportToCsv().subscribe(result => {
       if(!result.hasErrors && result.data) {
-        this.downloadFile(result.data, 'business_cards.csv'); // Specify the filename
-      } else {
-        this.notificationService.showError(result.errors.map( e => e.extraMessage + '\n').toString());
+        this.fileServic.downloadFile(result.data, 'business_cards.csv'); // Specify the filename
       }
     });
   }
 
-  private downloadFile(blob: Blob, filename: string) {
-    const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
-    const a = document.createElement('a'); // Create an anchor element
-    a.href = url; // Set the href to the Blob URL
-    a.download = filename; // Set the download attribute with the desired filename
-    document.body.appendChild(a); // Append the anchor to the body
-    a.click(); // Programmatically click the anchor to trigger the download
-    document.body.removeChild(a); // Remove the anchor from the document
-    window.URL.revokeObjectURL(url); // Free up memory by revoking the Blob URL
-  }
+
 }

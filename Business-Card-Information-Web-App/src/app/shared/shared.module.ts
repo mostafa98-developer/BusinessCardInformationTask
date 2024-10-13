@@ -17,6 +17,7 @@ import { HeaderComponent } from './header/header.component';
 import { MatMenuModule } from '@angular/material/menu'; // Import MatMenuModule
 import { MatToolbarModule } from '@angular/material/toolbar'; // Import MatToolbarModule
 import { RouterModule } from '@angular/router';  // <-- Import RouterModule
+import { NgxSpinnerModule } from "ngx-spinner";
 
 
 
@@ -37,7 +38,8 @@ import { RouterModule } from '@angular/router';  // <-- Import RouterModule
      MatSnackBarModule,
      MatToolbarModule, // Add MatToolbarModule here
      MatMenuModule,
-     RouterModule
+     RouterModule,
+     NgxSpinnerModule
   ],
   exports: [
     MatStepperModule,
@@ -55,6 +57,7 @@ import { RouterModule } from '@angular/router';  // <-- Import RouterModule
     MatMenuModule,
     PhotoUploadComponent,
     HeaderComponent,
-    RouterModule]
+    RouterModule,
+    NgxSpinnerModule]
 })
 export class SharedModule { }

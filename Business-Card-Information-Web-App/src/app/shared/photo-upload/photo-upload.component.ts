@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
   selector: 'app-photo-upload',
@@ -6,9 +6,9 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./photo-upload.component.css']
 })
 export class PhotoUploadComponent {
-  @Output() photoUploaded = new EventEmitter<string>(); // Emit the Base64 string to parent
+  @Output() photoUploaded = new EventEmitter<string>();
+  @Input('photoBase64Input') photoBase64Input = '';// Emit the Base64 string to parent
   fileError: string | null = null; // To store any error messages related to the file input
-  photoBase64!: string;
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -33,7 +33,7 @@ export class PhotoUploadComponent {
 
     reader.onload = () => {
       const base64Image = reader.result as string;
-      this.photoBase64 = base64Image;
+      this.photoBase64Input = base64Image;
       this.photoUploaded.emit(base64Image); // Emit the base64 string to the parent
       this.fileError = null; // Clear any previous error messages
     };

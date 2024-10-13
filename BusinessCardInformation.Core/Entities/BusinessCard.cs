@@ -29,6 +29,6 @@ namespace BusinessCardInformation.Core.Entities
         [Required]  
         public string Address { get; set; }
 
-        public string PhotoBase64 { get; set; } 
+        public string PhotoBase64 { get; set; } = " ";
     }
 }

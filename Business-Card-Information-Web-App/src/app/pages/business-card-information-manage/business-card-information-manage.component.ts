@@ -38,8 +38,6 @@ export class BusinessCardInformationManageComponent {
           next: (result: ServiceResult<BusinessCard>) => {
             if (!result.hasErrors && result.data) {
               this.businessCardForm.patchValue(result.data);
-            } else {
-              this.notificationService.showError('Failed to load business card.');
             }
           },
           error: () => {
@@ -74,8 +72,6 @@ export class BusinessCardInformationManageComponent {
       if (!response.hasErrors) {
         this.notificationService.showSuccess('Saved successfully!');
         this.router.navigateByUrl('pages/business-bard-information-list');
-      } else {
-        this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
       }
     });
   }
@@ -86,8 +82,6 @@ export class BusinessCardInformationManageComponent {
       if (!response.hasErrors) {
         this.notificationService.showSuccess('Saved successfully!');
         this.router.navigateByUrl('pages/business-bard-information-list');
-      } else {
-        this.notificationService.showError(response.errors.map( e => e.extraMessage + '\n').toString());
       }
     });
   }

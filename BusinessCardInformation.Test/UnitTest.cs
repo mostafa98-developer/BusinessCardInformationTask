@@ -115,8 +115,8 @@ namespace BusinessCardInformation.Test
 
                 // Assert
                 var badRequestResult = Assert.IsType<OkObjectResult>(result);
-                var requestResulValue = Assert.IsType<List<BusinessCard>>(badRequestResult.Value);
-                Assert.Equal(serviceResult.Data.Count() > 0, requestResulValue.Count() > 0);
+                var requestResulValue = Assert.IsType<ServiceResult<IEnumerable<BusinessCard>>>(badRequestResult.Value);
+                Assert.Equal(ResultCode.Ok, requestResulValue.Status);
             }
 
             [Fact]

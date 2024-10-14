@@ -34,6 +34,7 @@ This is a .NET Core API built with ASP.NET Core 8 and Entity Framework Core. The
 3. Update the database connection string in appsettings.json:
 4. apply migrations
    dotnet ef database update
+5. use iis express and set the BusinessCardInformation project as startup project
 
 
 ## API Endpoints

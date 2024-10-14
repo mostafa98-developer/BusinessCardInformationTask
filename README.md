@@ -45,6 +45,12 @@ This is a .NET Core API built with ASP.NET Core 8 and Entity Framework Core. The
 | POST   | `/api/businesscards`         | Create a new business card          |
 | PUT    | `/api/businesscards/{id}`    | Update an existing business card    |
 | DELETE | `/api/businesscards/{id}`    | Delete a specific business card     |
+| POST   | `/api/businesscards/import`  | import a specific business card from file csv, xml and QRcode |
+| GET    | `/api/businesscards/export/xml`   | export  business cards as  xml file  |
+| GET    | `/api/businesscards/export/csv`   | export  business cards as  csv file    |
+| POST   | `/api/businesscards/QRCodeReader`   | QRCodeReader to reading business cards from Qr code    |
+| POST   | `/api/businesscards/bulk`   | Create a new business cards as bulk    |
+
 
 ## DataBase file .bak
   Restore the DB dump file inside the repository is unnecessary because we are using Entity Framework (EF) ORM, which will create the tables when the project runs.

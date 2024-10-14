@@ -85,8 +85,6 @@ export class BusinessCardInformationListComponent {
               this.loadBusinessCards()
             }
           });
-        } else {
-          this.notificationService.showError('Something went wrong!');
         }
       });
 

@@ -53,7 +53,7 @@ export class ImportBusinessCardsFromFileComponent {
   save() {
     this.businessCardService.importBulk(this.dataSource.data).subscribe(result => {
       if(result.isSucceed){
-        this.dialogRef.close();
+        this.dialogRef.close(true);
       }
     })
 

@@ -1,0 +1,21 @@
+/* page-not-found.component.css */
+.page-not-found {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.page-not-found h1 {
+  font-size: 3rem;
+  color: #ff4c4c;
+}
+
+.page-not-found p {
+  font-size: 1.5rem;
+  color: #555;
+}
+
+.page-not-found a {
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
+}

@@ -1,50 +1,53 @@
 <h1 mat-dialog-title>Import Business Cards</h1>
 <div mat-dialog-content>
-<div class="toolbar">
-  <div>
-    <label for="file">Choose File QR Code or (csv,xml):</label>
-    <input type="file" id="file" (change)="onFileChange($event)" accept=".csv, .xml,.png">
+  <div class="toolbar">
+    <div>
+      <label for="file">Choose File QR Code or (csv,xml):</label>
+      <input type="file" id="file" (change)="onFileChange($event)" accept=".csv, .xml,.png">
+    </div>
   </div>
-</div>
+  <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
 
-<mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-  <ng-container matColumnDef="name">
-    <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.name }} </mat-cell>
-  </ng-container>
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.name }} </mat-cell>
+      </ng-container>
 
-  <ng-container matColumnDef="gender">
-    <mat-header-cell *matHeaderCellDef> Gender </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.gender }} </mat-cell>
-  </ng-container>
+      <ng-container matColumnDef="gender">
+        <mat-header-cell *matHeaderCellDef> Gender </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.gender }} </mat-cell>
+      </ng-container>
 
-  <ng-container matColumnDef="dateOfBirth">
-    <mat-header-cell *matHeaderCellDef> Date of Birth </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.dateOfBirth | date }} </mat-cell>
-  </ng-container>
+      <ng-container matColumnDef="dateOfBirth">
+        <mat-header-cell *matHeaderCellDef> Date of Birth </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.dateOfBirth | date }} </mat-cell>
+      </ng-container>
 
-  <ng-container matColumnDef="email">
-    <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.email }} </mat-cell>
-  </ng-container>
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.email }} </mat-cell>
+      </ng-container>
 
-  <ng-container matColumnDef="phone">
-    <mat-header-cell *matHeaderCellDef> Phone </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.phone }} </mat-cell>
-  </ng-container>
+      <ng-container matColumnDef="phone">
+        <mat-header-cell *matHeaderCellDef> Phone </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.phone }} </mat-cell>
+      </ng-container>
 
-  <ng-container matColumnDef="address">
-    <mat-header-cell *matHeaderCellDef> Address </mat-header-cell>
-    <mat-cell *matCellDef="let card"> {{ card.address }} </mat-cell>
-  </ng-container>
+      <ng-container matColumnDef="address">
+        <mat-header-cell *matHeaderCellDef> Address </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.address }} </mat-cell>
+      </ng-container>
 
-  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </div>
 </div>
 <div mat-dialog-actions>
   <button mat-raised-button color="primary" (click)="importBusinessCards()" [disabled]="!selectedFile">Import</button>
-  <button mat-raised-button color="primary" (click)="save()" [disabled]="this.dataSource.data.length<0">Save All data</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="this.dataSource.data.length<0">Save All
+    data</button>
 
   <button mat-button mat-dialog-close>Cancel</button>
 </div>

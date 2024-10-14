@@ -9,6 +9,7 @@ This is a .NET Core API built with ASP.NET Core 8 and Entity Framework Core. The
 - **RESTful API**: Follows REST principles for resource management.
 - **Entity Framework Core**: Uses EF Core for data access and manipulation.
 - **Database Support**:  SQL Server
+- **Unit test**: Uses Moq For mocking the service layer (IBusinessCardService) and validator (IValidator<BusinessCard>).
 - **Error Handling**: Proper error handling and responses.
 
 ## Prerequisites
@@ -46,5 +47,18 @@ This is a .NET Core API built with ASP.NET Core 8 and Entity Framework Core. The
 | DELETE | `/api/businesscards/{id}`    | Delete a specific business card     |
 
 ## DataBase file .bak
-  restore the DB named
+  Restore the DB dump file inside the repository is unnecessary because we are using Entity Framework (EF) ORM, which will create the tables when the project runs.
 
+## BusinessCardInformationWebApp
+
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.7.
+
+## Development server
+
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+## Angular 18 Requirement
+ Node. js version 18.19 or above
+
+## Screenshots folder
+  Contains a video recording of the project run
